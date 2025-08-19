@@ -126,6 +126,7 @@ export default function CustomerManager({ data, setData }) {
       type: "newCustomer",
       data: newCustomer,
     };
+    console.log(JSON.stringify(submitData))
     try {
       setLoading(true);
       const response = await fetch(URL, {
