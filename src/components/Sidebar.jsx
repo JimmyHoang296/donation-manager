@@ -2,6 +2,7 @@ import {
   Calendar,
   ChevronLeft,
   DownloadCloud,
+  FormInput,
   LayoutDashboard,
   ListTodo,
   Search,
@@ -13,10 +14,12 @@ import React from "react";
 const Sidebar = ({ user, isSidebarOpen, setIsSidebarOpen, setCurrentPage }) => {
   const navItemsUser = [
     { name: "Khách hàng", icon: <User2 />, page: "customer-management" },
-
+    { name: "Booking", icon: <FormInput />, page: "booking-management" },
+    
   ];
   const navItemsLeader = [
     { name: "Khách hàng", icon: <User2 />, page: "customer-management" },
+    { name: "Booking", icon: <FormInput />, page: "booking-management" },
 
   ];
   const navItems = user.role === "emp" ? navItemsUser : navItemsLeader;

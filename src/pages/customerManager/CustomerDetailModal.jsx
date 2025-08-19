@@ -14,6 +14,8 @@ const CustomerDetailModal = ({
       id: "",
       customerTaxCode: "", // Mã KH
       customerName: "", // Tên KH
+      slcpId:"",
+      worldlyId:"",
       email: "", // Địa chỉ email
       eName: "", // Tên tiếng anh
       vName: "", // Tên tiếng việt
@@ -92,6 +94,30 @@ const CustomerDetailModal = ({
               type="text"
               name="customerTaxCode"
               value={formData.customerTaxCode}
+              onChange={handleInputChange}
+              className="w-full p-2 border rounded-md"
+            />
+          </div>
+          <div className="col-span-1">
+            <label className="block text-gray-700 text-sm mb-1">
+              Worldly ID
+            </label>
+            <input
+              type="text"
+              name="worldlyId"
+              value={formData.worldlyId}
+              onChange={handleInputChange}
+              className="w-full p-2 border rounded-md"
+            />
+          </div>
+          <div className="col-span-1">
+            <label className="block text-gray-700 text-sm mb-1">
+              slcpId
+            </label>
+            <input
+              type="text"
+              name="slcpId"
+              value={formData.slcpId}
               onChange={handleInputChange}
               className="w-full p-2 border rounded-md"
             />
@@ -187,8 +213,8 @@ const CustomerDetailModal = ({
             </label>
             <input
               type="text"
-              name="legalRepresentative"
-              value={formData.legalRepresentative}
+              name="representative"
+              value={formData.representative}
               onChange={handleInputChange}
               className="w-full p-2 border rounded-md"
             />
@@ -197,8 +223,8 @@ const CustomerDetailModal = ({
             <label className="block text-gray-700 text-sm mb-1">Chức vụ</label>
             <input
               type="text"
-              name="position"
-              value={formData.position}
+              name="repTitle"
+              value={formData.repTitle}
               onChange={handleInputChange}
               className="w-full p-2 border rounded-md"
             />
