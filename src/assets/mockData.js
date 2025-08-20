@@ -1071,7 +1071,7 @@ export const mockdata = {
       "KH yêu cầu đánh giá": "",
     },
   ],
-  bookings: [
+  projects: [
     {
       id: "B001",
       customerId: "C001",

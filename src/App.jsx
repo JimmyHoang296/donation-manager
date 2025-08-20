@@ -9,7 +9,7 @@ import { mockdata } from "./assets/mockData";
 import ViolationManager from "./pages/violation/ViolationManager";
 import Login from "./pages/login/Login";
 import CustomerManager from "./pages/customerManager/CustomerManager";
-import BookingManager from "./pages/bookingManager/BookingManager";
+import ProjectManager from "./pages/projectManager/ProjectManager";
 
 // Mock data for demonstration
 
@@ -35,7 +35,7 @@ const App = () => {
       case "customer-management":
         return <CustomerManager data={data} setData={setData}/>;
       case "booking-management":
-        return <BookingManager data={data} setData={setData}/>;
+        return <ProjectManager data={data} setData={setData}/>;
       default:
         return <Dashboard />;
     }

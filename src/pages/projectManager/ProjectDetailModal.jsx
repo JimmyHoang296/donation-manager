@@ -1,17 +1,18 @@
 import React, { useState } from "react";
-import { Save, Trash } from "lucide-react";
+import { Plus, Save, Trash, Trash2 } from "lucide-react";
 import Select from "react-select";
+import ServiceDetailModal from "../servicesManager/ServiceDetailModal";
 
-export default function BookingDetailModal({
+export default function ProjectDetailModal({
   data,
-  booking,
+  project,
   onClose,
   onSave,
   onUpdate,
   onDelete,
 }) {
   const [formData, setFormData] = useState(
-    booking || {
+    project || {
       id: "",
       customerId: "",
       customerTaxCode: "",
@@ -35,7 +36,7 @@ export default function BookingDetailModal({
     }
   );
 
-  const isNew = !booking?.id;
+  const isNew = !project?.id;
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -43,8 +44,8 @@ export default function BookingDetailModal({
   };
 
   const handleSave = () => {
-    if (!formData.client) return alert("Client is required");
-    if (!formData.type) return alert("Type is required");
+    if (!formData.customerTaxCode) return alert("Chọn khách hàng");
+    if (!formData.type) return alert("Chọn loại dịch vụ");
 
     if (isNew) {
       onSave(formData);
@@ -52,13 +53,45 @@ export default function BookingDetailModal({
       onUpdate(formData);
     }
   };
+  // ===== Service Handling =====
+  // service row change
+  const handleServiceChange = (index, field, value) => {
+    const updatedServices = [...formData.services];
+    updatedServices[index][field] = value;
 
+    // convert quantity & price to numbers before saving
+    updatedServices[index].quantity =
+      Number(updatedServices[index].quantity) || 0;
+    updatedServices[index].price = Number(updatedServices[index].price) || 0;
+
+    setFormData((prev) => ({ ...prev, services: updatedServices }));
+  };
+
+  const handleAddService = () => {
+    setFormData((prev) => ({
+      ...prev,
+      services: prev.services
+        ? [...prev.services, { name: "", quantity: 0, price: 0 }]
+        : [],
+    }));
+  };
+
+  const handleDeleteService = (index) => {
+    const updatedServices = formData.services.filter((_, i) => i !== index);
+    setFormData((prev) => ({ ...prev, services: updatedServices }));
+  };
+
+  // Auto-calc total
+  const total = formData.services?.reduce(
+    (sum, s) => sum + (s.quantity || 0) * (s.price || 0),
+    0
+  );
   return (
     <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-xl shadow-lg p-6 w-full max-w-4xl max-h-[90vh] overflow-y-auto">
         <div className="flex justify-between items-center border-b pb-3 mb-4">
           <h3 className="text-xl font-bold">
-            {isNew ? "Thêm Booking" : "Chi tiết Booking"}
+            {isNew ? "Thêm Project" : "Chi tiết Project"}
           </h3>
           <button onClick={onClose} className="text-2xl">
             &times;
@@ -75,9 +108,9 @@ export default function BookingDetailModal({
               value={
                 formData.customerName
                   ? {
-                    value: formData.customerName,
-                    label: formData.customerName,
-                  }
+                      value: formData.customerName,
+                      label: formData.customerName,
+                    }
                   : null
               }
               onChange={(selected) => {
@@ -88,6 +121,7 @@ export default function BookingDetailModal({
                   ...formData,
                   customerName: customer.customerName,
                   customerTaxCode: customer.customerTaxCode,
+                  customerId: customer.id,
                 });
               }}
               options={data.customers.map((c) => ({
@@ -105,9 +139,9 @@ export default function BookingDetailModal({
               value={
                 formData.customerTaxCode
                   ? {
-                    value: formData.customerTaxCode,
-                    label: formData.customerTaxCode,
-                  }
+                      value: formData.customerTaxCode,
+                      label: formData.customerTaxCode,
+                    }
                   : null
               }
               onChange={(selected) => {
@@ -118,6 +152,7 @@ export default function BookingDetailModal({
                   ...formData,
                   customerName: customer.customerName,
                   customerTaxCode: customer.customerTaxCode,
+                  customerId: customer.id,
                 });
               }}
               options={data.customers.map((c) => ({
@@ -163,7 +198,50 @@ export default function BookingDetailModal({
             />
           </div>
         </div>
-
+        {/* Rep Info */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 border-t pt-4">
+          <h4 className="col-span-2 font-bold">Representative</h4>
+          <input
+            placeholder="Name"
+            type="text"
+            name="repName"
+            value={formData.repName}
+            onChange={handleInputChange}
+            className="w-full p-2 border rounded-md"
+          />
+          <input
+            placeholder="Title"
+            type="text"
+            name="repTitle"
+            value={formData.repTitle}
+            onChange={handleInputChange}
+            className="w-full p-2 border rounded-md"
+          />
+          <input
+            placeholder="Email"
+            type="email"
+            name="repMail"
+            value={formData.repMail}
+            onChange={handleInputChange}
+            className="w-full p-2 border rounded-md"
+          />
+          <input
+            placeholder="Phone"
+            type="tel"
+            name="repPhone"
+            value={formData.repPhone}
+            onChange={handleInputChange}
+            className="w-full p-2 border rounded-md"
+          />
+          <input
+            placeholder="Expected Time"
+            type="text"
+            name="expectedTime"
+            value={formData.expectedTime}
+            onChange={handleInputChange}
+            className="w-full p-2 border rounded-md"
+          />
+        </div>
         {/* Conditional fields */}
         {formData.type === "slcp" && (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6 border-t pt-4">
@@ -177,7 +255,9 @@ export default function BookingDetailModal({
                 isMulti
                 value={
                   formData.slcpStep
-                    ? formData.slcpStep.split(",").map((s) => ({ value: s.trim(), label: s }))
+                    ? formData.slcpStep
+                        .split(",")
+                        .map((s) => ({ value: s.trim(), label: s }))
                     : []
                 }
                 onChange={(selected) =>
@@ -297,12 +377,16 @@ export default function BookingDetailModal({
                 name="higgChem"
                 isMulti
                 value={
-                  formData.higgChem ? formData.higgChem.split(",").map((s) => ({ value: s.trim(), label: s })) : []
+                  formData.higgChem
+                    ? formData.higgChem
+                        .split(",")
+                        .map((s) => ({ value: s.trim(), label: s }))
+                    : []
                 }
                 onChange={(selected) =>
                   setFormData({
                     ...formData,
-                    higgChem: selected.map((s) => s.value).join(','),
+                    higgChem: selected.map((s) => s.value).join(","),
                   })
                 }
                 options={[
@@ -319,50 +403,61 @@ export default function BookingDetailModal({
           </div>
         )}
 
-        {/* Rep Info */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 border-t pt-4">
-          <h4 className="col-span-2 font-bold">Representative</h4>
-          <input
-            placeholder="Name"
-            type="text"
-            name="repName"
-            value={formData.repName}
-            onChange={handleInputChange}
-            className="w-full p-2 border rounded-md"
-          />
-          <input
-            placeholder="Title"
-            type="text"
-            name="repTitle"
-            value={formData.repTitle}
-            onChange={handleInputChange}
-            className="w-full p-2 border rounded-md"
-          />
-          <input
-            placeholder="Email"
-            type="email"
-            name="repMail"
-            value={formData.repMail}
-            onChange={handleInputChange}
-            className="w-full p-2 border rounded-md"
-          />
-          <input
-            placeholder="Phone"
-            type="tel"
-            name="repPhone"
-            value={formData.repPhone}
-            onChange={handleInputChange}
-            className="w-full p-2 border rounded-md"
-          />
-          <input
-            placeholder="Expected Time"
-            type="text"
-            name="expectedTime"
-            value={formData.expectedTime}
-            onChange={handleInputChange}
-            className="w-full p-2 border rounded-md"
-          />
+        {/* Services Section */}
+        {/* Services Table */}
+        {/* Service Section */}
+        <div className="mt-8">
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-xl font-bold text-gray-800">Quản lý Service</h2>
+            <button
+              onClick={handleAddService}
+              className="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 flex items-center"
+            >
+              <Plus className="mr-2" /> Thêm service
+            </button>
+          </div>
+
+          <div className="overflow-x-auto">
+            <table className="min-w-full divide-y divide-gray-200 text-sm">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th className="px-4 py-3 text-left">Tên Service</th>
+                  <th className="px-4 py-3 text-left">Mô tả</th>
+                  <th className="px-4 py-3 text-left">Giá</th>
+                  <th className="px-4 py-3 text-center">Hành động</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-200 bg-white">
+                {services?.map((s) => (
+                  <tr key={s.id}>
+                    <td className="px-4 py-3">{s.name}</td>
+                    <td className="px-4 py-3">{s.description}</td>
+                    <td className="px-4 py-3">{s.price}</td>
+                    <td className="px-4 py-3 text-center">
+                      <button
+                        onClick={() => handleOpenService(s)}
+                        className="text-indigo-600 hover:text-indigo-900"
+                      >
+                        Edit
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
+
+        {/* Modal */}
+        {isServiceModalOpen && (
+          <ServiceDetailModal
+            service={selectedService}
+            onClose={handleCloseServiceModal}
+            onSave={handleSaveNewService}
+            onUpdate={handleUpdateService}
+            onDelete={handleDeleteService}
+          />
+        )}
 
         <div className="flex justify-end space-x-2 mt-6">
           <button
