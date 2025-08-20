@@ -19,14 +19,14 @@ export default function BookingDetailModal({
       type: "",
       clientRequest: "",
       deadline: "",
-      slcpStep: [],
+      slcpStep: "",
       slcpScore: "",
       slcpWorkerLang: "",
       slcpManagerLang: "",
       higgSelf: "",
       higgSingle: "",
       higgVerification: "",
-      higgChem: [],
+      higgChem: "",
       repName: "",
       repTitle: "",
       repMail: "",
@@ -75,9 +75,9 @@ export default function BookingDetailModal({
               value={
                 formData.customerName
                   ? {
-                      value: formData.customerName,
-                      label: formData.customerName,
-                    }
+                    value: formData.customerName,
+                    label: formData.customerName,
+                  }
                   : null
               }
               onChange={(selected) => {
@@ -105,9 +105,9 @@ export default function BookingDetailModal({
               value={
                 formData.customerTaxCode
                   ? {
-                      value: formData.customerTaxCode,
-                      label: formData.customerTaxCode,
-                    }
+                    value: formData.customerTaxCode,
+                    label: formData.customerTaxCode,
+                  }
                   : null
               }
               onChange={(selected) => {
@@ -176,12 +176,14 @@ export default function BookingDetailModal({
                 name="slcpStep"
                 isMulti
                 value={
-                  formData.slcpStep?.map((s) => ({ value: s, label: s })) || []
+                  formData.slcpStep
+                    ? formData.slcpStep.split(",").map((s) => ({ value: s.trim(), label: s }))
+                    : []
                 }
                 onChange={(selected) =>
                   setFormData({
                     ...formData,
-                    slcpStep: selected.map((s) => s.value),
+                    slcpStep: selected.map((s) => s.value).join(","), // 👈 store as string
                   })
                 }
                 options={[
@@ -295,12 +297,12 @@ export default function BookingDetailModal({
                 name="higgChem"
                 isMulti
                 value={
-                  formData.higgChem?.map((s) => ({ value: s, label: s })) || []
+                  formData.higgChem ? formData.higgChem.split(",").map((s) => ({ value: s.trim(), label: s })) : []
                 }
                 onChange={(selected) =>
                   setFormData({
                     ...formData,
-                    higgChem: selected.map((s) => s.value),
+                    higgChem: selected.map((s) => s.value).join(','),
                   })
                 }
                 options={[
