@@ -7,19 +7,70 @@ export default function ServiceDetailModal({
   onUpdate,
   onDelete,
 }) {
-  const [formData, setFormData] = useState(
-    service || { id: null, name: "", description: "", price: 0 }
-  );
+  const emptyService = {
+    id: null,
+    prjId: "",
+    name: "",
+    address: "",
+    manday: 0,
+    itemCost: 0,
+    travelFee: 0,
+    adminFee: 0,
+    rate: 0,
+    startDate: "",
+    endDate: "",
+    emp1: "",
+    emp2: "",
+    emp3: "",
+    // calculated fields
+    costUSD: 0,
+    costVND: 0,
+    VAT: 0,
+    total: 0,
+    allowance: 0,
+    overnight: 0,
+    reporting: 0,
+    nhatKhang: 0,
+    hotel: 0,
+    otherExpense: 0,
+    grabXanh: 0,
+    flightTicket: 0,
+  };
+
+  const [formData, setFormData] = useState(service || emptyService);
 
   useEffect(() => {
     if (service) setFormData(service);
   }, [service]);
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
+  // 🔹 Auto-calc values when relevant inputs change
+  useEffect(() => {
+    const costUSD = formData.manday * formData.itemCost;
+    const costVND = costUSD * (formData.rate || 0);
+    const VAT = costVND * 0.1; // example 10% VAT
+    const total =
+      costVND + VAT + (formData.travelFee || 0) + (formData.adminFee || 0);
+
     setFormData((prev) => ({
       ...prev,
-      [name]: name === "price" ? Number(value) : value,
+      costUSD,
+      costVND,
+      VAT,
+      total,
+    }));
+  }, [
+    formData.manday,
+    formData.itemCost,
+    formData.rate,
+    formData.travelFee,
+    formData.adminFee,
+  ]);
+
+  const handleChange = (e) => {
+    const { name, value, type } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: type === "number" ? Number(value) : value,
     }));
   };
 
@@ -33,48 +84,141 @@ export default function ServiceDetailModal({
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-      <div className="bg-white rounded-xl shadow-lg p-6 w-full max-w-lg">
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div className="bg-white rounded-xl shadow-lg p-6 w-full max-w-3xl max-h-[90vh] overflow-y-auto">
         <h2 className="text-xl font-bold mb-4">
           {formData.id ? "Edit Service" : "New Service"}
         </h2>
 
-        <form onSubmit={handleSubmit} className="space-y-3">
-          <div>
-            <label className="block text-sm font-medium">Service Name</label>
-            <input
-              type="text"
-              name="name"
-              value={formData.name}
-              onChange={handleChange}
-              className="w-full p-2 border rounded-md"
-              required
-            />
+        <form onSubmit={handleSubmit} className="space-y-6">
+          {/* Basic Info */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium">Service Name</label>
+              <input
+                type="text"
+                name="name"
+                value={formData.name}
+                onChange={handleChange}
+                className="w-full p-2 border rounded-md"
+                required
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium">Address</label>
+              <input
+                type="text"
+                name="address"
+                value={formData.address}
+                onChange={handleChange}
+                className="w-full p-2 border rounded-md"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium">Start Date</label>
+              <input
+                type="date"
+                name="startDate"
+                value={formData.startDate}
+                onChange={handleChange}
+                className="w-full p-2 border rounded-md"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium">End Date</label>
+              <input
+                type="date"
+                name="endDate"
+                value={formData.endDate}
+                onChange={handleChange}
+                className="w-full p-2 border rounded-md"
+              />
+            </div>
+            {["emp1", "emp2", "emp3"].map((field) => (
+              <div key={field}>
+                <label className="block text-sm font-medium">{field}</label>
+                <input
+                  type="text"
+                  name={field}
+                  value={formData[field]}
+                  onChange={handleChange}
+                  className="w-full p-2 border rounded-md"
+                />
+              </div>
+            ))}
           </div>
 
-          <div>
-            <label className="block text-sm font-medium">Description</label>
-            <textarea
-              name="description"
-              value={formData.description}
-              onChange={handleChange}
-              className="w-full p-2 border rounded-md"
-            />
+          {/* Inputs that affect cost */}
+          <h3 className="font-semibold">Input Costs</h3>
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+            {["exchangeRate", "vatRate"].map((field) => (
+              <div key={field}>
+                <label className="block text-sm font-medium">{field}</label>
+                <input
+                  type="number"
+                  name={field}
+                  value={formData[field]}
+                  onChange={handleChange}
+                  className="w-full p-2 border rounded-md"
+                />
+              </div>
+            ))}
+          </div>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            {["manday", "itemCost", "travelFee", "adminFee"].map((field) => (
+              <div key={field}>
+                <label className="block text-sm font-medium">{field}</label>
+                <input
+                  type="number"
+                  name={field}
+                  value={formData[field]}
+                  onChange={handleChange}
+                  className="w-full p-2 border rounded-md"
+                />
+              </div>
+            ))}
+            {["costUSD", "VAT", "total", "totalVND"].map((field) => (
+              <div key={field}>
+                <label className="block text-sm font-medium">{field}</label>
+                <input
+                  type="text"
+                  name={field}
+                  value={formData[field]}
+                  readOnly
+                  className="w-full p-2 border rounded-md bg-gray-100"
+                />
+              </div>
+            ))}
           </div>
 
-          <div>
-            <label className="block text-sm font-medium">Price</label>
-            <input
-              type="number"
-              name="price"
-              value={formData.price}
-              onChange={handleChange}
-              className="w-full p-2 border rounded-md"
-              required
-            />
+          {/* Readonly Calculated */}
+          <h3 className="font-semibold">Các chi phí</h3>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            {[
+              "allowance",
+              "overnight",
+              "reporting",
+              "nhatKhang",
+              "hotel",
+              "otherExpense",
+              "grabXanh",
+              "flightTicket",
+            ].map((field) => (
+              <div key={field}>
+                <label className="block text-sm font-medium">{field}</label>
+                <input
+                  type="text"
+                  name={field}
+                  value={formData[field]}
+                  readOnly
+                  className="w-full p-2 border rounded-md bg-gray-100"
+                />
+              </div>
+            ))}
           </div>
 
-          <div className="flex justify-end gap-2 mt-4">
+          {/* Actions */}
+          <div className="flex justify-end gap-2 mt-6">
             {formData.id && (
               <button
                 type="button"

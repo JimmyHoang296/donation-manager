@@ -13,13 +13,23 @@
     "deploy": "gh-pages -d build"
   },
   "dependencies": {
+    "@fullcalendar/daygrid": "^6.1.19",
+    "@fullcalendar/interaction": "^6.1.19",
+    "@fullcalendar/react": "^6.1.19",
+    "@fullcalendar/timegrid": "^6.1.19",
+    "@schedule-x/calendar": "^2.36.0",
+    "@schedule-x/events-service": "^2.36.0",
+    "@schedule-x/react": "^2.36.0",
+    "@schedule-x/theme-default": "^2.36.0",
     "@tailwindcss/postcss": "^4.1.11",
     "@tailwindcss/vite": "^4.1.11",
+    "fullcalendar": "^6.1.19",
     "gh-pages": "^6.3.0",
     "git": "^0.1.5",
     "lucide-react": "^0.537.0",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
+    "react-rnd": "^10.5.2",
     "react-select": "^5.10.2"
   },
   "devDependencies": {

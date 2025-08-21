@@ -15,26 +15,26 @@ import ProjectManager from "./pages/projectManager/ProjectManager";
 
 // Main App Component
 const App = () => {
-  const [currentPage, setCurrentPage] = useState("customer-management");
+  const [currentPage, setCurrentPage] = useState("project-management");
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [isLogin, setIsLogin] = useState(true);
   const [data, setData] = useState(mockdata)
   
   const renderContent = () => {
     switch (currentPage) {
-      case "dashboard":
-        return <Dashboard data={data} />;
+      // case "dashboard":
+      //   return <Dashboard data={data} />;
       // case "task-management":
       //   return <TaskManager data={data} setData={setData}/>;
-      // case "calendar":
-      //   return <Calendar data={data} setData={setData}/>;
+      case "calendar":
+        return <Calendar data={data} setData={setData}/>;
       // case "search":
       //   return <SearchStore />;
       // case "violation-management":
       //   return <ViolationManager data={data} setData={setData}/>;
       case "customer-management":
         return <CustomerManager data={data} setData={setData}/>;
-      case "booking-management":
+      case "project-management":
         return <ProjectManager data={data} setData={setData}/>;
       default:
         return <Dashboard />;

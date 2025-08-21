@@ -14,12 +14,14 @@ import React from "react";
 const Sidebar = ({ user, isSidebarOpen, setIsSidebarOpen, setCurrentPage }) => {
   const navItemsUser = [
     { name: "Khách hàng", icon: <User2 />, page: "customer-management" },
-    { name: "Booking", icon: <FormInput />, page: "booking-management" },
+    { name: "Dự án", icon: <FormInput />, page: "project-management" },
+    { name: "Lịch", icon: <Calendar />, page: "calendar" },
     
   ];
   const navItemsLeader = [
     { name: "Khách hàng", icon: <User2 />, page: "customer-management" },
-    { name: "Booking", icon: <FormInput />, page: "booking-management" },
+    { name: "Dự án", icon: <FormInput />, page: "project-management" },
+    { name: "Lịch", icon: <Calendar />, page: "calendar" },
 
   ];
   const navItems = user.role === "emp" ? navItemsUser : navItemsLeader;

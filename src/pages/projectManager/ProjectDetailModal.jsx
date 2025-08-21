@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { Plus, Save, Trash, Trash2 } from "lucide-react";
+import React, { use, useState } from "react";
+import { Eye, Plus, Save, Trash, Trash2 } from "lucide-react";
 import Select from "react-select";
 import ServiceDetailModal from "../servicesManager/ServiceDetailModal";
 
@@ -11,6 +11,8 @@ export default function ProjectDetailModal({
   onUpdate,
   onDelete,
 }) {
+  const [isServiceModalOpen, setIsServiceModalOpen] = useState(false);
+  const [selectedService, setSelectedService] = useState(null);
   const [formData, setFormData] = useState(
     project || {
       id: "",
@@ -36,6 +38,36 @@ export default function ProjectDetailModal({
     }
   );
 
+  const emptyService = {
+    id: null,
+    prjId: "",
+    name: "",
+    address: "",
+    manday: 0,
+    itemCost: 0,
+    travelFee: 0,
+    adminFee: 0,
+    rate: 0,
+    startDate: "",
+    endDate: "",
+    emp1: "",
+    emp2: "",
+    emp3: "",
+    // calculated fields
+    costUSD: 0,
+    costVND: 0,
+    VAT: 0,
+    total: 0,
+    allowance: 0,
+    overnight: 0,
+    reporting: 0,
+    nhatKhang: 0,
+    hotel: 0,
+    otherExpense: 0,
+    grabXanh: 0,
+    flightTicket: 0,
+  };
+
   const isNew = !project?.id;
 
   const handleInputChange = (e) => {
@@ -54,6 +86,10 @@ export default function ProjectDetailModal({
     }
   };
   // ===== Service Handling =====
+  const handleOpenService = (service) => {
+    setSelectedService(service);
+    setIsServiceModalOpen(true);
+  };
   // service row change
   const handleServiceChange = (index, field, value) => {
     const updatedServices = [...formData.services];
@@ -68,17 +104,37 @@ export default function ProjectDetailModal({
   };
 
   const handleAddService = () => {
-    setFormData((prev) => ({
-      ...prev,
-      services: prev.services
-        ? [...prev.services, { name: "", quantity: 0, price: 0 }]
-        : [],
-    }));
+    const newService = { ...emptyService, prjId: formData.id };
+    setSelectedService(newService);
+    setIsServiceModalOpen(true);
   };
 
   const handleDeleteService = (index) => {
     const updatedServices = formData.services.filter((_, i) => i !== index);
     setFormData((prev) => ({ ...prev, services: updatedServices }));
+  };
+
+  const handleCloseServiceModal = () => {
+    setIsServiceModalOpen(false);
+    setSelectedService(null);
+  };
+
+  const handleSaveNewService = (newService) => {
+    setFormData((prev) => ({
+      ...prev,
+      services: [...(prev.services || []), newService],
+    }));
+    handleCloseServiceModal();
+  };
+
+  const handleUpdateService = (updatedService) => {
+    setFormData((prev) => ({
+      ...prev,
+      services: prev.services.map((s) =>
+        s.id === updatedService.id ? updatedService : s
+      ),
+    }));
+    handleCloseServiceModal();
   };
 
   // Auto-calc total
@@ -90,9 +146,26 @@ export default function ProjectDetailModal({
     <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-xl shadow-lg p-6 w-full max-w-4xl max-h-[90vh] overflow-y-auto">
         <div className="flex justify-between items-center border-b pb-3 mb-4">
-          <h3 className="text-xl font-bold">
-            {isNew ? "Thêm Project" : "Chi tiết Project"}
-          </h3>
+          {/* Action button */}
+          <div className="flex items-center justify-start space-x-2">
+            <h3 className="text-xl font-bold mr-12">
+              {isNew ? "Thêm Project" : "Chi tiết Project"}
+            </h3>
+            <button
+              onClick={handleSave}
+              className="bg-indigo-500 text-white px-4 py-2 rounded-lg flex items-center"
+            >
+              <Save className="mr-2" /> Save
+            </button>
+            {!isNew && (
+              <button
+                onClick={() => onDelete(formData.id)}
+                className="bg-red-500 text-white px-4 py-2 rounded-lg flex items-center"
+              >
+                <Trash className="mr-2" /> Delete
+              </button>
+            )}
+          </div>
           <button onClick={onClose} className="text-2xl">
             &times;
           </button>
@@ -199,7 +272,7 @@ export default function ProjectDetailModal({
           </div>
         </div>
         {/* Rep Info */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 border-t pt-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 border-t pt-4 mb-4">
           <h4 className="col-span-2 font-bold">Representative</h4>
           <input
             placeholder="Name"
@@ -235,7 +308,7 @@ export default function ProjectDetailModal({
           />
           <input
             placeholder="Expected Time"
-            type="text"
+            type="date"
             name="expectedTime"
             value={formData.expectedTime}
             onChange={handleInputChange}
@@ -406,14 +479,16 @@ export default function ProjectDetailModal({
         {/* Services Section */}
         {/* Services Table */}
         {/* Service Section */}
-        <div className="mt-8">
+        <div className="mt-4 pt-4 border-t">
           <div className="flex justify-between items-center mb-4">
-            <h2 className="text-xl font-bold text-gray-800">Quản lý Service</h2>
+            <h2 className="text-xl font-bold text-gray-800">
+              Danh sách công việc trong dự án
+            </h2>
             <button
               onClick={handleAddService}
               className="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 flex items-center"
             >
-              <Plus className="mr-2" /> Thêm service
+              <Plus className="mr-2" /> Thêm công việc
             </button>
           </div>
 
@@ -428,7 +503,7 @@ export default function ProjectDetailModal({
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200 bg-white">
-                {services?.map((s) => (
+                {formData.services?.map((s) => (
                   <tr key={s.id}>
                     <td className="px-4 py-3">{s.name}</td>
                     <td className="px-4 py-3">{s.description}</td>
@@ -438,7 +513,7 @@ export default function ProjectDetailModal({
                         onClick={() => handleOpenService(s)}
                         className="text-indigo-600 hover:text-indigo-900"
                       >
-                        Edit
+                        <Eye className="w-5 h-5 mx-auto" />
                       </button>
                     </td>
                   </tr>
@@ -458,23 +533,6 @@ export default function ProjectDetailModal({
             onDelete={handleDeleteService}
           />
         )}
-
-        <div className="flex justify-end space-x-2 mt-6">
-          <button
-            onClick={handleSave}
-            className="bg-indigo-500 text-white px-4 py-2 rounded-lg flex items-center"
-          >
-            <Save className="mr-2" /> Save
-          </button>
-          {!isNew && (
-            <button
-              onClick={() => onDelete(formData.id)}
-              className="bg-red-500 text-white px-4 py-2 rounded-lg flex items-center"
-            >
-              <Trash className="mr-2" /> Delete
-            </button>
-          )}
-        </div>
       </div>
     </div>
   );
