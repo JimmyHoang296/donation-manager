@@ -7,35 +7,7 @@ export default function ServiceDetailModal({
   onUpdate,
   onDelete,
 }) {
-  const emptyService = {
-    id: null,
-    prjId: "",
-    name: "",
-    address: "",
-    manday: 0,
-    itemCost: 0,
-    travelFee: 0,
-    adminFee: 0,
-    rate: 0,
-    startDate: "",
-    endDate: "",
-    emp1: "",
-    emp2: "",
-    emp3: "",
-    // calculated fields
-    costUSD: 0,
-    costVND: 0,
-    VAT: 0,
-    total: 0,
-    allowance: 0,
-    overnight: 0,
-    reporting: 0,
-    nhatKhang: 0,
-    hotel: 0,
-    otherExpense: 0,
-    grabXanh: 0,
-    flightTicket: 0,
-  };
+  
 
   const [formData, setFormData] = useState(service || emptyService);
 

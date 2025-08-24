@@ -46,22 +46,30 @@ const App = () => {
       {!isLogin ? (
         <Login setData={setData} setIsLogin={setIsLogin}/>
       ) : (
-        <div className="flex min-h-screen bg-gray-100 font-sans">
-          <Sidebar
-            user={data.user}
-            isSidebarOpen={isSidebarOpen}
-            setIsSidebarOpen={setIsSidebarOpen}
-            setCurrentPage={setCurrentPage}
-          />
-          <div
-            className={`flex-1 flex flex-col transition-all duration-300 ${
-              isSidebarOpen ? "ml-64" : "ml-16"
-            }`}
-          >
-            <Header user={data.user.name} setIsSidebarOpen={setIsSidebarOpen} />
-            <main className="flex-1 p-2 ">{renderContent()}</main>
-          </div>
-        </div>
+<div className="flex w-screen h-screen bg-gray-100 font-sans overflow-hidden">
+  {/* Sidebar width is controlled here, regardless of how <Sidebar /> is built */}
+  <div className={`${isSidebarOpen ? "w-64" : "w-16"} shrink-0`}>
+    <Sidebar
+      user={data.user}
+      isSidebarOpen={isSidebarOpen}
+      setIsSidebarOpen={setIsSidebarOpen}
+      setCurrentPage={setCurrentPage}
+    />
+  </div>
+
+  {/* Main column */}
+  <div className="flex-1 flex flex-col min-w-0 transition-all duration-300">
+    <Header user={data.user.name} isSidebarOpen={isSidebarOpen} setIsSidebarOpen={setIsSidebarOpen} />
+
+    {/* Only this area scrolls horizontally (and vertically if needed) */}
+    <main className="flex-1 p-2">
+      {/* Ensure content can exceed the container width to trigger horizontal scroll */}
+      <div className="">
+        {renderContent()}
+      </div>
+    </main>
+  </div>
+</div>
       )}
     </>
   );

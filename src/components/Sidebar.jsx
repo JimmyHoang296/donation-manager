@@ -33,7 +33,7 @@ const Sidebar = ({ user, isSidebarOpen, setIsSidebarOpen, setCurrentPage }) => {
     >
       <div className="flex items-center justify-between h-16 mb-6">
         {isSidebarOpen && (
-          <h1 className="text-xl font-bold text-red-800">KSTT WCM</h1>
+          <h1 className="text-xl font-bold text-green-800">LEADERSHIP & SUSTAINABILITY</h1>
         )}
         <button
           onClick={() => setIsSidebarOpen(!isSidebarOpen)}

@@ -1,14 +1,17 @@
 import React, { useState } from "react";
 import { ChevronLeft, ChevronRight, Search, X } from "lucide-react";
 
-// Dữ liệu mẫu cho biểu đồ Gantt với 14 nhân viên và công việc ngắn
 const generateRandomTasks = (numPeople, numTasks) => {
   const tasks = [];
   const baseDate = new Date("2025-08-01");
   const allPics = Array.from({ length: numPeople }, (_, i) => `Minh ${i + 1}`);
 
   for (let i = 0; i < numTasks; i++) {
-    const pic = allPics[Math.floor(Math.random() * allPics.length)];
+    // 20% công việc không có PIC
+    const pic =
+      Math.random() < 0.2
+        ? ""
+        : allPics[Math.floor(Math.random() * allPics.length)];
     const startDay = Math.floor(Math.random() * 25) + 1;
     const duration = Math.floor(Math.random() * 3) + 1;
     const startDate = new Date(
@@ -33,12 +36,13 @@ const generateRandomTasks = (numPeople, numTasks) => {
   return tasks;
 };
 
-const initialTasks = generateRandomTasks(14, 25);
+const initialTasks = generateRandomTasks(24, 60);
 
 const Calendar = () => {
   const today = new Date();
   const [currentMonth, setCurrentMonth] = useState(today);
   const [filterText, setFilterText] = useState("");
+  const [filterTaskText, setFilterTaskText] = useState(""); // 🔹 search task by name
   const [tasks, setTasks] = useState(initialTasks);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedTask, setSelectedTask] = useState(null);
@@ -46,6 +50,7 @@ const Calendar = () => {
 
   const allPics = Array.from({ length: 14 }, (_, i) => `Minh ${i + 1}`);
 
+  // Lọc PIC theo filterText
   const filteredPics = allPics.filter((pic) =>
     pic.toLowerCase().includes(filterText.toLowerCase())
   );
@@ -59,10 +64,7 @@ const Calendar = () => {
 
     for (let i = 1; i <= daysInMonth; i++) {
       const day = new Date(year, month, i);
-      days.push({
-        day: i,
-        weekday: weekdays[day.getDay()],
-      });
+      days.push({ day: i, weekday: weekdays[day.getDay()] });
     }
     return days;
   };
@@ -70,10 +72,14 @@ const Calendar = () => {
   const daysInMonth = getDaysAndWeekdaysInMonth(currentMonth);
 
   const handlePrevMonth = () => {
-    setCurrentMonth((prev) => new Date(prev.getFullYear(), prev.getMonth() - 1, 1));
+    setCurrentMonth(
+      (prev) => new Date(prev.getFullYear(), prev.getMonth() - 1, 1)
+    );
   };
   const handleNextMonth = () => {
-    setCurrentMonth((prev) => new Date(prev.getFullYear(), prev.getMonth() + 1, 1));
+    setCurrentMonth(
+      (prev) => new Date(prev.getFullYear(), prev.getMonth() + 1, 1)
+    );
   };
   const handleThisMonth = () => {
     setCurrentMonth(today);
@@ -84,35 +90,55 @@ const Calendar = () => {
     year: "numeric",
   });
 
+  // Lọc task theo tháng hiện tại
   const tasksInCurrentMonth = tasks.filter((task) => {
     const startDate = new Date(task.startDate);
     const endDate = new Date(task.endDate);
-    const startMonth = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), 1);
-    const endMonth = new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 0);
+    const startMonth = new Date(
+      currentMonth.getFullYear(),
+      currentMonth.getMonth(),
+      1
+    );
+    const endMonth = new Date(
+      currentMonth.getFullYear(),
+      currentMonth.getMonth() + 1,
+      0
+    );
     return startDate <= endMonth && endDate >= startMonth;
   });
 
-  const tasksWithPicIndex = tasksInCurrentMonth.map((task) => ({
+  // 🔹 Lọc thêm theo tên task
+  const tasksFilteredByName = tasksInCurrentMonth.filter((t) =>
+    t.name.toLowerCase().includes(filterTaskText.toLowerCase())
+  );
+
+  const tasksWithPicIndex = tasksFilteredByName.map((task) => ({
     ...task,
     picIndex: allPics.findIndex((pic) => pic === task.pic),
   }));
 
-  const gridTemplateColumns = `minmax(12rem, auto) repeat(${daysInMonth.length}, minmax(3rem, 1fr))`;
+  const gridTemplateColumns = `12rem repeat(${daysInMonth.length}, 5rem)`;
 
   const getTaskGridStyle = (task) => {
     const startDate = new Date(task.startDate);
     const endDate = new Date(task.endDate);
-
     const taskStartDay = Math.max(1, startDate.getDate());
     const taskEndDay = Math.min(daysInMonth.length, endDate.getDate());
-
-    const startColumn = taskStartDay + 1; // +1 vì cột đầu tiên là tên nhân viên
+    const startColumn = taskStartDay + 1;
     const endColumn = taskEndDay + 2;
-
-    const colors = ["bg-indigo-500", "bg-teal-500", "bg-green-500", "bg-orange-500", "bg-red-500"];
+    const colors = [
+      "bg-indigo-500",
+      "bg-teal-500",
+      "bg-green-500",
+      "bg-orange-500",
+      "bg-red-500",
+    ];
     const colorClass = colors[task.id % colors.length];
-
-    return { gridColumnStart: startColumn, gridColumnEnd: endColumn, colorClass };
+    return {
+      gridColumnStart: startColumn,
+      gridColumnEnd: endColumn,
+      colorClass,
+    };
   };
 
   const handleTaskClick = (task) => {
@@ -140,18 +166,31 @@ const Calendar = () => {
     setEditedTask(null);
   };
 
+  // 🔹 Tách riêng task không có PIC
+  const noPicTasks = tasksFilteredByName.filter((t) => !t.pic);
+
   return (
-    <div className="bg-gray-100 min-h-screen p-4 font-sans antialiased">
-      <div className="max-w-6xl mx-auto p-6 bg-white rounded-xl shadow-md">
+    <div className="bg-gray-100 min-h-screen font-sans antialiased">
+      <div className="w-100% mx-auto p-6 bg-white rounded-xl shadow-md">
         {/* Header */}
-        <div className="mb-6 border-b pb-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-          <h2 className="text-2xl font-bold text-gray-800">Biểu đồ Gantt Dự án</h2>
+        <div className="mb-6 border-b pb-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 overflow-x-auto overflow-y-auto min-w-max">
+          <h2 className="text-2xl font-bold text-gray-800">
+            Phân công lịch dự án
+          </h2>
           <div className="flex items-center gap-2">
-            <button onClick={handlePrevMonth} className="bg-gray-200 text-gray-800 p-2 rounded-lg hover:bg-gray-300">
+            <button
+              onClick={handlePrevMonth}
+              className="bg-gray-200 text-gray-800 p-2 rounded-lg hover:bg-gray-300"
+            >
               <ChevronLeft className="w-5 h-5" />
             </button>
-            <span className="text-xl font-bold text-gray-800">{formattedMonth}</span>
-            <button onClick={handleNextMonth} className="bg-gray-200 text-gray-800 p-2 rounded-lg hover:bg-gray-300">
+            <span className="text-xl font-bold text-gray-800">
+              {formattedMonth}
+            </span>
+            <button
+              onClick={handleNextMonth}
+              className="bg-gray-200 text-gray-800 p-2 rounded-lg hover:bg-gray-300"
+            >
               <ChevronRight className="w-5 h-5" />
             </button>
             <button
@@ -163,10 +202,13 @@ const Calendar = () => {
           </div>
         </div>
 
-        {/* Filter */}
-        <div className="mb-6 flex items-center gap-2">
-          <div className="relative w-full">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
+        {/* Filters */}
+        <div className="mb-6 flex flex-col sm:flex-row gap-3">
+          <div className="relative flex-1">
+            <Search
+              className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+              size={20}
+            />
             <input
               type="text"
               placeholder="Tìm kiếm nhân viên..."
@@ -175,57 +217,123 @@ const Calendar = () => {
               className="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-indigo-500"
             />
           </div>
+          <div className="relative flex-1">
+            <Search
+              className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+              size={20}
+            />
+            <input
+              type="text"
+              placeholder="Tìm kiếm công việc..."
+              value={filterTaskText}
+              onChange={(e) => setFilterTaskText(e.target.value)}
+              className="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-indigo-500"
+            />
+          </div>
         </div>
 
         {/* Gantt Chart */}
-        <div className="pt-4 overflow-x-auto overflow-y-auto max-h-[500px]">
+        <div className="relative h-[calc(100vh-16rem)] overflow-scroll">
           <div
-            className="grid gap-px border border-gray-200"
+            className="grid border gap-y-1 border-gray-200 min-w-max min-h-max"
             style={{ gridTemplateColumns }}
           >
-            {/* Header rows */}
-            <div className="p-3 border-r border-gray-200 bg-gray-50 font-semibold text-center sticky top-0 left-0 z-20">
+            {/* Header row */}
+            <div className="p-3 border-r border-gray-200 bg-gray-50 font-semibold text-center sticky top-0 left-0 z-40">
               Nhân viên
             </div>
+
             {daysInMonth.map((d, i) => (
-              <div key={`wd-${i}`} className="p-3 border-r border-gray-200 bg-gray-50 font-semibold text-center sticky top-0 z-20">
-                {d.weekday}
-              </div>
-            ))}
-            <div className="p-3 border-r border-gray-200 bg-gray-50 font-semibold text-center sticky top-0 left-0 z-20"></div>
-            {daysInMonth.map((d, i) => (
-              <div key={`d-${i}`} className="p-3 border-r border-gray-200 bg-gray-50 font-semibold text-center sticky top-0 z-20">
-                {d.day}
+              <div
+                key={`wd-${i}`}
+                className={`p-0 border-r border-gray-200 ${
+                  d.weekday === "T7" || d.weekday === "CN"
+                    ? "bg-red-200"
+                    : "bg-gray-50"
+                } font-semibold text-center sticky top-0 z-30 shadow-md`}
+              >
+                <p>{d.weekday}</p>
+                <p>{d.day}</p>
               </div>
             ))}
 
-            {/* Task rows */}
+            {/* 🔹 Row for tasks without PIC */}
+            {noPicTasks.length > 0 && (
+              <>
+                <div
+                  className="bg-yellow-100 border-b border-gray-300 px-4 py-2 font-semibold sticky left-0 top-[3rem] z-41"
+                  style={{ gridRowStart: 3, gridColumnStart: 1 }}
+                >
+                  Chưa có PIC
+                </div>
+                {daysInMonth.map((d, i) => (
+                  <div
+                    key={`bg-nopic-${i}`}
+                    className={`border-b border-gray-200 sticky top-[3rem] z-40 ${
+                      d.weekday === "T7" || d.weekday === "CN"
+                        ? "bg-red-100"
+                        : d.day % 2 !== 0
+                        ? "bg-gray-50"
+                        : "bg-white"
+                    }`}
+                    style={{ gridRowStart: 3, gridColumnStart: i + 2 }}
+                  />
+                ))}
+                {noPicTasks.map((task) => {
+                  const { colorClass, gridColumnStart, gridColumnEnd } =
+                    getTaskGridStyle(task);
+                  return (
+                    <div
+                      key={task.id}
+                      className={`rounded-md shadow-md sticky text-white text-xs font-bold flex items-center justify-center cursor-pointer top-[3rem] z-40 ${colorClass}`}
+                      style={{
+                        gridRowStart: 3,
+                        gridColumnStart,
+                        gridColumnEnd,
+                        minHeight: "2rem",
+                      }}
+                      title={`${task.name} - ${task.startDate} → ${task.endDate}`}
+                      onClick={() => handleTaskClick(task)}
+                    >
+                      <span className="truncate px-2">{task.name}</span>
+                    </div>
+                  );
+                })}
+              </>
+            )}
+
+            {/* Normal PIC rows */}
             {filteredPics.map((pic, picIndex) => {
-              const row = picIndex + 3;
+              const row = noPicTasks.length > 0 ? picIndex + 4 : picIndex + 3;
               const picTasks = tasksWithPicIndex.filter((t) => t.pic === pic);
+              if (picTasks.length === 0) return null;
 
               return (
                 <React.Fragment key={pic}>
-                  {/* Name cell */}
                   <div
-                    className="bg-white  border-b border-gray-200 px-4 py-2 font-semibold sticky left-0 z-10"
+                    className="bg-white border-b border-gray-200 px-4 py-2 font-semibold sticky left-0 z-20"
                     style={{ gridRowStart: row, gridColumnStart: 1 }}
                   >
                     {pic}
                   </div>
 
-                  {/* Background cells */}
                   {daysInMonth.map((d, i) => (
                     <div
                       key={`bg-${pic}-${i}`}
-                      className={`border-b border-gray-200 ${d.day % 2 !== 0 ? "bg-gray-100" : ""}`}
+                      className={`border-b border-gray-200 ${
+                        d.weekday === "T7" || d.weekday === "CN"
+                          ? "bg-red-100"
+                          : d.day % 2 !== 0
+                          ? "bg-gray-50"
+                          : "bg-white"
+                      }`}
                       style={{ gridRowStart: row, gridColumnStart: i + 2 }}
                     />
                   ))}
 
-                  {/* Task bars */}
                   {picTasks.map((task) => {
-                    const { colorClass, gridColumnStart, gridColumnEnd } = getTaskGridStyle(task);
+                    const { colorClass, gridColumnStart, gridColumnEnd } =
+                      getTaskGridStyle(task);
                     return (
                       <div
                         key={task.id}
@@ -256,13 +364,18 @@ const Calendar = () => {
           <div className="bg-white p-6 rounded-lg shadow-xl w-full max-w-sm">
             <div className="flex justify-between items-center mb-4">
               <h3 className="text-lg font-bold">Chỉnh sửa công việc</h3>
-              <button onClick={handleCancel} className="text-gray-500 hover:text-gray-700">
+              <button
+                onClick={handleCancel}
+                className="text-gray-500 hover:text-gray-700"
+              >
                 <X size={24} />
               </button>
             </div>
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium mb-1">Tên công việc</label>
+                <label className="block text-sm font-medium mb-1">
+                  Tên công việc
+                </label>
                 <input
                   type="text"
                   name="name"
@@ -272,7 +385,9 @@ const Calendar = () => {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium mb-1">Ngày bắt đầu</label>
+                <label className="block text-sm font-medium mb-1">
+                  Ngày bắt đầu
+                </label>
                 <input
                   type="date"
                   name="startDate"
@@ -282,7 +397,9 @@ const Calendar = () => {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium mb-1">Ngày kết thúc</label>
+                <label className="block text-sm font-medium mb-1">
+                  Ngày kết thúc
+                </label>
                 <input
                   type="date"
                   name="endDate"
@@ -292,13 +409,16 @@ const Calendar = () => {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium mb-1">Người phụ trách</label>
+                <label className="block text-sm font-medium mb-1">
+                  Người phụ trách
+                </label>
                 <select
                   name="pic"
                   value={editedTask.pic}
                   onChange={handleModalChange}
                   className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500"
                 >
+                  <option value="">(Chưa có PIC)</option>
                   {allPics.map((p) => (
                     <option key={p} value={p}>
                       {p}
@@ -308,10 +428,16 @@ const Calendar = () => {
               </div>
             </div>
             <div className="mt-6 flex justify-end gap-3">
-              <button onClick={handleCancel} className="px-4 py-2 bg-gray-200 rounded-lg hover:bg-gray-300">
+              <button
+                onClick={handleCancel}
+                className="px-4 py-2 bg-gray-200 rounded-lg hover:bg-gray-300"
+              >
                 Hủy
               </button>
-              <button onClick={handleSave} className="px-4 py-2 bg-indigo-500 text-white rounded-lg hover:bg-indigo-600">
+              <button
+                onClick={handleSave}
+                className="px-4 py-2 bg-indigo-500 text-white rounded-lg hover:bg-indigo-600"
+              >
                 Lưu
               </button>
             </div>

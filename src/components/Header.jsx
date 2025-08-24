@@ -1,9 +1,12 @@
 import { ChevronLeft, UserCircle } from 'lucide-react';
 import React from 'react'
 // Header Component
-const Header = ({ user,setIsSidebarOpen }) => {
+const Header = ({ user,isSidebarOpen,setIsSidebarOpen }) => {
   return (
     <header className="flex items-center justify-between h-16 bg-white shadow-md p-4">
+      {!isSidebarOpen && (
+          <h1 className="text-xl font-bold text-green-800">LEADERSHIP & SUSTAINABILITY</h1>
+        )}
       <div className="flex items-center">
         <button onClick={() => setIsSidebarOpen(prevState => !prevState)} className="p-2 rounded-full hover:bg-gray-200 lg:hidden">
           <ChevronLeft className="w-5 h-5" />
