@@ -7,8 +7,6 @@ export default function ServiceDetailModal({
   onUpdate,
   onDelete,
 }) {
-  
-
   const [formData, setFormData] = useState(service || emptyService);
 
   useEffect(() => {
@@ -17,18 +15,20 @@ export default function ServiceDetailModal({
 
   // 🔹 Auto-calc values when relevant inputs change
   useEffect(() => {
-    const costUSD = formData.manday * formData.itemCost;
-    const costVND = costUSD * (formData.rate || 0);
-    const VAT = costVND * 0.1; // example 10% VAT
-    const total =
-      costVND + VAT + (formData.travelFee || 0) + (formData.adminFee || 0);
+    const costUSD =
+      formData.manday * formData.itemCost +
+      formData.travelFee +
+      formData.adminFee;
+    const totalVND = costUSD * formData.exchangeRate || 0;
+    const VAT = costUSD * parseFloat(formData.vatRate) || 0; // example 10% VAT
+    const total = costUSD + VAT || 0;
 
     setFormData((prev) => ({
       ...prev,
       costUSD,
-      costVND,
       VAT,
       total,
+      totalVND,
     }));
   }, [
     formData.manday,
@@ -51,7 +51,7 @@ export default function ServiceDetailModal({
     if (formData.id) {
       onUpdate(formData);
     } else {
-      onSave({ ...formData, id: Date.now().toString() });
+      onSave(formData);
     }
   };
 
@@ -122,7 +122,7 @@ export default function ServiceDetailModal({
 
           {/* Inputs that affect cost */}
           <h3 className="font-semibold">Input Costs</h3>
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             {["exchangeRate", "vatRate"].map((field) => (
               <div key={field}>
                 <label className="block text-sm font-medium">{field}</label>

@@ -185,7 +185,7 @@ export default function ProjectManager({ data, setData }) {
           <tbody className="divide-y divide-gray-200 bg-white">
             {paginatedProjects.map((b) => (
               <tr key={b.id}>
-                <td className="px-4 py-3">{b.client}</td>
+                <td className="px-4 py-3 max-w-50">{b.customerName}</td>
                 <td className="px-4 py-3">{b.type}</td>
                 <td className="px-4 py-3">{b.deadline}</td>
                 <td className="px-4 py-3 text-center">

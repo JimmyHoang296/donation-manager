@@ -2,6 +2,10 @@ import React, { use, useState } from "react";
 import { Eye, Plus, Save, Trash, Trash2 } from "lucide-react";
 import Select from "react-select";
 import ServiceDetailModal from "../servicesManager/ServiceDetailModal";
+import { URL } from "../../assets/variables";
+import LoadingModal from "../../components/LoadingModal";
+import { stringify } from "postcss";
+import { JsonRequestError } from "fullcalendar/index.js";
 
 export default function ProjectDetailModal({
   data,
@@ -13,6 +17,7 @@ export default function ProjectDetailModal({
 }) {
   const [isServiceModalOpen, setIsServiceModalOpen] = useState(false);
   const [selectedService, setSelectedService] = useState(null);
+  const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState(
     project || {
       id: "",
@@ -47,7 +52,8 @@ export default function ProjectDetailModal({
     itemCost: 0,
     travelFee: 0,
     adminFee: 0,
-    rate: 0,
+    vatRate: 0.08,
+    exchangeRate: 25600,
     startDate: "",
     endDate: "",
     emp1: "",
@@ -109,9 +115,29 @@ export default function ProjectDetailModal({
     setIsServiceModalOpen(true);
   };
 
-  const handleDeleteService = (index) => {
-    const updatedServices = formData.services.filter((_, i) => i !== index);
-    setFormData((prev) => ({ ...prev, services: updatedServices }));
+  const handleDeleteService = async (serviceId) => {
+    if (!confirm("Bạn muốn xóa công viêc này này?")) return;
+    const submitData = { type: "deleteService", data: serviceId };
+    try {
+      setLoading(true);
+      const response = await fetch(URL, {
+        method: "POST",
+        headers: { "Content-Type": "text/plain;charset=utf-8" },
+        body: JSON.stringify(submitData),
+      });
+      const result = await response.json();
+      if (result.success) {
+        const updatedServices = formData.services.filter(
+          (s, i) => s.id !== serviceId
+        );
+        setFormData((prev) => ({ ...prev, services: updatedServices }));
+      }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+    // handleCloseServiceModal();
   };
 
   const handleCloseServiceModal = () => {
@@ -119,22 +145,57 @@ export default function ProjectDetailModal({
     setSelectedService(null);
   };
 
-  const handleSaveNewService = (newService) => {
-    setFormData((prev) => ({
-      ...prev,
-      services: [...(prev.services || []), newService],
-    }));
-    handleCloseServiceModal();
+  const handleSaveNewService = async (newService) => {
+    const submitData = { type: "newService", data: newService };
+    console.log(submitData);
+    try {
+      setLoading(true);
+      const response = await fetch(URL, {
+        method: "POST",
+        headers: { "Content-Type": "text/plain;charset=utf-8" },
+        body: JSON.stringify(submitData),
+      });
+
+      const result = await response.json();
+      if (result.success) {
+        newService.id = result.data;
+        setFormData((prev) => ({
+          ...prev,
+          services: [...(prev.services || []), newService],
+        }));
+        // handleCloseServiceModal();
+      }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleUpdateService = (updatedService) => {
-    setFormData((prev) => ({
-      ...prev,
-      services: prev.services.map((s) =>
-        s.id === updatedService.id ? updatedService : s
-      ),
-    }));
-    handleCloseServiceModal();
+  const handleUpdateService = async (updatedService) => {
+    const submitData = { type: "updateService", data: updatedService };
+    try {
+      setLoading(true);
+      const response = await fetch(URL, {
+        method: "POST",
+        headers: { "Content-Type": "text/plain;charset=utf-8" },
+        body: JSON.stringify(submitData),
+      });
+      const result = await response.json();
+      if (result.success) {
+        setFormData((prev) => ({
+          ...prev,
+          services: prev.services.map((s) =>
+            s.id === updatedService.id ? updatedService : s
+          ),
+        }));
+        handleCloseServiceModal();
+      }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
   };
 
   // Auto-calc total
@@ -497,17 +558,23 @@ export default function ProjectDetailModal({
               <thead className="bg-gray-50">
                 <tr>
                   <th className="px-4 py-3 text-left">Tên Service</th>
-                  <th className="px-4 py-3 text-left">Mô tả</th>
-                  <th className="px-4 py-3 text-left">Giá</th>
+                  <th className="px-4 py-3 text-left">Mandays</th>
+                  <th className="px-4 py-3 text-left">Item cost</th>
+                  <th className="px-4 py-3 text-left">Travel fee</th>
+                  <th className="px-4 py-3 text-left">Admin fee</th>
+                  <th className="px-4 py-3 text-left">Cost USD</th>
                   <th className="px-4 py-3 text-center">Hành động</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200 bg-white">
                 {formData.services?.map((s) => (
                   <tr key={s.id}>
-                    <td className="px-4 py-3">{s.name}</td>
-                    <td className="px-4 py-3">{s.description}</td>
-                    <td className="px-4 py-3">{s.price}</td>
+                    <td className="px-4 py-3 max-[4rem]">{s.name}</td>
+                    <td className="px-4 py-3">{s.manday}</td>
+                    <td className="px-4 py-3">{s.itemCost}</td>
+                    <td className="px-4 py-3">{s.travelFee}</td>
+                    <td className="px-4 py-3">{s.adminFee}</td>
+                    <td className="px-4 py-3">{s.costUSD}</td>
                     <td className="px-4 py-3 text-center">
                       <button
                         onClick={() => handleOpenService(s)}
@@ -518,6 +585,20 @@ export default function ProjectDetailModal({
                     </td>
                   </tr>
                 ))}
+                <tr>
+                  <td className="px-4 py-3 max-[4rem]">Total</td>
+                  <td className="px-4 py-3"></td>
+                  <td className="px-4 py-3"></td>
+                  <td className="px-4 py-3"></td>
+                  <td className="px-4 py-3"></td>
+                  <td className="px-4 py-3">
+                    {formData.services?.reduce(
+                      (sum, item) => sum + (item.costUSD || 0),
+                      0
+                    )}
+                  </td>
+                  <td className="px-4 py-3 text-center"> </td>
+                </tr>
               </tbody>
             </table>
           </div>
@@ -534,6 +615,7 @@ export default function ProjectDetailModal({
           />
         )}
       </div>
+      {loading && <LoadingModal message="Loading..." />}
     </div>
   );
 }
