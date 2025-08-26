@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { ChevronLeft, ChevronRight, Search, X } from "lucide-react";
+import { mockdata } from "../../assets/mockData";
 
 const generateRandomTasks = (numPeople, numTasks) => {
   const tasks = [];
@@ -38,18 +39,25 @@ const generateRandomTasks = (numPeople, numTasks) => {
 
 const initialTasks = generateRandomTasks(24, 60);
 
-const Calendar = () => {
+const Calendar = ({ data }) => {
   const today = new Date();
   const [currentMonth, setCurrentMonth] = useState(today);
   const [filterText, setFilterText] = useState("");
   const [filterTaskText, setFilterTaskText] = useState(""); // 🔹 search task by name
-  const [tasks, setTasks] = useState(initialTasks);
+  const [tasks, setTasks] = useState(
+    data.services.map((s) => ({
+      id: s.id,
+      name: s.name,
+      pic: s.pic,
+      startDate: s.startDate,
+      endDate: s.endDate,
+    }))
+  );
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedTask, setSelectedTask] = useState(null);
   const [editedTask, setEditedTask] = useState(null);
 
-  const allPics = Array.from({ length: 14 }, (_, i) => `Minh ${i + 1}`);
-
+  const allPics = data.emps
   // Lọc PIC theo filterText
   const filteredPics = allPics.filter((pic) =>
     pic.toLowerCase().includes(filterText.toLowerCase())
@@ -133,7 +141,7 @@ const Calendar = () => {
       "bg-orange-500",
       "bg-red-500",
     ];
-    const colorClass = colors[task.id % colors.length];
+    const colorClass = colors[Math.floor(Math.random() * colors.length)];
     return {
       gridColumnStart: startColumn,
       gridColumnEnd: endColumn,
@@ -168,6 +176,7 @@ const Calendar = () => {
 
   // 🔹 Tách riêng task không có PIC
   const noPicTasks = tasksFilteredByName.filter((t) => !t.pic);
+  console.log(tasks);
 
   return (
     <div className="bg-gray-100 min-h-screen font-sans antialiased">

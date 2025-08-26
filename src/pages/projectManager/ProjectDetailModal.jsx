@@ -317,8 +317,23 @@ export default function ProjectDetailModal({
               className="w-full p-2 border rounded-md"
             >
               <option value="">-- Select --</option>
-              <option value="slcp">SLCP</option>
-              <option value="higg">Higg</option>
+              {[
+                "vFEM",
+                "vSLCP",
+                "vZIV",
+                "vSTZ",
+                "vFDM",
+                "vCOC",
+                "t-FEM",
+                "t-ZDHC",
+                "t-CleanChain",
+                "t-STZ",
+                "Other",
+              ].map((v, i) => (
+                <option key={i} value={v}>
+                  {v}
+                </option>
+              ))}
             </select>
           </div>
           <div>
@@ -377,7 +392,7 @@ export default function ProjectDetailModal({
           />
         </div>
         {/* Conditional fields */}
-        {formData.type === "slcp" && (
+        {formData.type === "vSLCP" && (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6 border-t pt-4">
             <h4 className="col-span-2 font-bold">SLCP Info</h4>
             <div>
@@ -449,7 +464,7 @@ export default function ProjectDetailModal({
           </div>
         )}
 
-        {formData.type === "higg" && (
+        {formData.type === "vFEM" && (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6 border-t pt-4">
             <h4 className="col-span-2 font-bold">Higg Info</h4>
             <div>

@@ -10,15 +10,18 @@ import ViolationManager from "./pages/violation/ViolationManager";
 import Login from "./pages/login/Login";
 import CustomerManager from "./pages/customerManager/CustomerManager";
 import ProjectManager from "./pages/projectManager/ProjectManager";
+import { mapServices } from "./assets/helpers";
 
 // Mock data for demonstration
+
+
 
 // Main App Component
 const App = () => {
   const [currentPage, setCurrentPage] = useState("project-management");
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [isLogin, setIsLogin] = useState(true);
-  const [data, setData] = useState(mockdata)
+  const [data, setData] = useState(mapServices(mockdata))
   
   const renderContent = () => {
     switch (currentPage) {
@@ -62,7 +65,7 @@ const App = () => {
     <Header user={data.user.name} isSidebarOpen={isSidebarOpen} setIsSidebarOpen={setIsSidebarOpen} />
 
     {/* Only this area scrolls horizontally (and vertically if needed) */}
-    <main className="flex-1 p-2">
+    <main className="flex-1 p-2 overflow-auto">
       {/* Ensure content can exceed the container width to trigger horizontal scroll */}
       <div className="">
         {renderContent()}
