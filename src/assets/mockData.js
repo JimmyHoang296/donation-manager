@@ -27751,7 +27751,7 @@ export const mockdata = {
       repMail: "hiep.hoang@charmingtrim.com",
       startDate: "2025-07-10T17:00:00.000Z",
       endDate: "2025-07-10T17:00:00.000Z",
-      pic: "Nhu",
+      pic: "",
       manday: 1.5,
       actualManday: 1.5,
       itemCost: 750,

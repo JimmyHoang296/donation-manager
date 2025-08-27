@@ -2,43 +2,6 @@ import React, { useState } from "react";
 import { ChevronLeft, ChevronRight, Search, X } from "lucide-react";
 import { mockdata } from "../../assets/mockData";
 
-const generateRandomTasks = (numPeople, numTasks) => {
-  const tasks = [];
-  const baseDate = new Date("2025-08-01");
-  const allPics = Array.from({ length: numPeople }, (_, i) => `Minh ${i + 1}`);
-
-  for (let i = 0; i < numTasks; i++) {
-    // 20% công việc không có PIC
-    const pic =
-      Math.random() < 0.2
-        ? ""
-        : allPics[Math.floor(Math.random() * allPics.length)];
-    const startDay = Math.floor(Math.random() * 25) + 1;
-    const duration = Math.floor(Math.random() * 3) + 1;
-    const startDate = new Date(
-      baseDate.getFullYear(),
-      baseDate.getMonth(),
-      startDay
-    );
-    const endDate = new Date(
-      baseDate.getFullYear(),
-      baseDate.getMonth(),
-      startDay + duration - 1
-    );
-
-    tasks.push({
-      id: i + 1,
-      name: `Công việc ${i + 1}`,
-      startDate: startDate.toISOString().split("T")[0],
-      endDate: endDate.toISOString().split("T")[0],
-      pic: pic,
-    });
-  }
-  return tasks;
-};
-
-const initialTasks = generateRandomTasks(24, 60);
-
 const Calendar = ({ data }) => {
   const today = new Date();
   const [currentMonth, setCurrentMonth] = useState(today);
@@ -57,7 +20,7 @@ const Calendar = ({ data }) => {
   const [selectedTask, setSelectedTask] = useState(null);
   const [editedTask, setEditedTask] = useState(null);
 
-  const allPics = data.emps
+  const allPics = data.emps;
   // Lọc PIC theo filterText
   const filteredPics = allPics.filter((pic) =>
     pic.toLowerCase().includes(filterText.toLowerCase())
@@ -130,10 +93,25 @@ const Calendar = ({ data }) => {
   const getTaskGridStyle = (task) => {
     const startDate = new Date(task.startDate);
     const endDate = new Date(task.endDate);
-    const taskStartDay = Math.max(1, startDate.getDate());
-    const taskEndDay = Math.min(daysInMonth.length, endDate.getDate());
-    const startColumn = taskStartDay + 1;
-    const endColumn = taskEndDay + 2;
+
+    const year = currentMonth.getFullYear();
+    const month = currentMonth.getMonth();
+
+    // First day & last day of the current month
+    const monthStart = new Date(year, month, 1);
+    const monthEnd = new Date(year, month, daysInMonth.length);
+
+    // Clamp task to the visible month
+    const visibleStart = startDate < monthStart ? monthStart : startDate;
+    const visibleEnd = endDate > monthEnd ? monthEnd : endDate;
+
+    // Convert to day-of-month
+    const taskStartDay = visibleStart.getDate();
+    const taskEndDay = visibleEnd.getDate();
+
+    const startColumn = taskStartDay + 1; // +1 for grid offset
+    const endColumn = taskEndDay + 2; // +2 to include end cell
+
     const colors = [
       "bg-indigo-500",
       "bg-teal-500",
@@ -142,12 +120,34 @@ const Calendar = ({ data }) => {
       "bg-red-500",
     ];
     const colorClass = colors[Math.floor(Math.random() * colors.length)];
+
     return {
       gridColumnStart: startColumn,
       gridColumnEnd: endColumn,
       colorClass,
     };
   };
+  // const getTaskGridStyle = (task) => {
+  //   const startDate = new Date(task.startDate);
+  //   const endDate = new Date(task.endDate);
+  //   const taskStartDay = Math.max(1, startDate.getDate());
+  //   const taskEndDay = Math.min(daysInMonth.length, endDate.getDate());
+  //   const startColumn = taskStartDay + 1;
+  //   const endColumn = taskEndDay + 2;
+  //   const colors = [
+  //     "bg-indigo-500",
+  //     "bg-teal-500",
+  //     "bg-green-500",
+  //     "bg-orange-500",
+  //     "bg-red-500",
+  //   ];
+  //   const colorClass = colors[Math.floor(Math.random() * colors.length)];
+  //   return {
+  //     gridColumnStart: startColumn,
+  //     gridColumnEnd: endColumn,
+  //     colorClass,
+  //   };
+  // };
 
   const handleTaskClick = (task) => {
     setSelectedTask(task);
@@ -175,8 +175,10 @@ const Calendar = ({ data }) => {
   };
 
   // 🔹 Tách riêng task không có PIC
+  console.log(tasksFilteredByName)
   const noPicTasks = tasksFilteredByName.filter((t) => !t.pic);
-  console.log(tasks);
+
+  console.log(noPicTasks);
 
   return (
     <div className="bg-gray-100 min-h-screen font-sans antialiased">
@@ -267,7 +269,7 @@ const Calendar = ({ data }) => {
             ))}
 
             {/* 🔹 Row for tasks without PIC */}
-            {noPicTasks.length > 0 && (
+            { (
               <>
                 <div
                   className="bg-yellow-100 border-b border-gray-300 px-4 py-2 font-semibold sticky left-0 top-[3rem] z-41"
@@ -313,9 +315,10 @@ const Calendar = ({ data }) => {
 
             {/* Normal PIC rows */}
             {filteredPics.map((pic, picIndex) => {
-              const row = noPicTasks.length > 0 ? picIndex + 4 : picIndex + 3;
+              // const row = noPicTasks.length > 0 ? picIndex + 4 : picIndex + 3;
+              const row = picIndex + 4
               const picTasks = tasksWithPicIndex.filter((t) => t.pic === pic);
-              if (picTasks.length === 0) return null;
+              // if (picTasks.length === 0) return null;
 
               return (
                 <React.Fragment key={pic}>
@@ -346,7 +349,7 @@ const Calendar = ({ data }) => {
                     return (
                       <div
                         key={task.id}
-                        className={`rounded-md shadow-md text-white text-xs font-bold flex items-center justify-center cursor-pointer ${colorClass}`}
+                        className={`rounded-md ml-1 mr-1 shadow-md text-white text-xs font-bold flex items-center justify-center cursor-pointer ${colorClass}`}
                         style={{
                           gridRowStart: row,
                           gridColumnStart,

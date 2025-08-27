@@ -11,6 +11,7 @@ export default function CustomerManager({ data, setData }) {
   const [searchQuery, setSearchQuery] = useState({
     customerTaxCode: "", // New search field
     customerName: "",
+    vAddress:""
   });
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -36,7 +37,11 @@ export default function CustomerManager({ data, setData }) {
           (!searchQuery.customerName ||
             customer.customerName
               .toLowerCase()
-              .includes(searchQuery.customerName.toLowerCase()))
+              .includes(searchQuery.customerName.toLowerCase()))&&
+          (!searchQuery.vAddress ||
+            customer.vAddress
+              .toLowerCase()
+              .includes(searchQuery.vAddress.toLowerCase()))
       )
     );
   }, [searchQuery, customers]);
@@ -202,13 +207,13 @@ export default function CustomerManager({ data, setData }) {
 
           <div>
             <label className="block text-gray-700 text-sm mb-1">
-              Đại diện pháp luật
+              Địa chỉ
             </label>
 
             <input
               type="text"
-              name="legalRepresentative"
-              value={searchQuery.legalRepresentative}
+              name="vAddress"
+              value={searchQuery.vAddress}
               onChange={handleSearchChange}
               className="w-full p-2 border rounded-md"
             />
@@ -220,7 +225,7 @@ export default function CustomerManager({ data, setData }) {
                 setSearchQuery({
                   customerTaxCode: "",
                   email: "",
-                  legalRepresentative: "",
+                  vAddress: "",
                 })
               }
               className="bg-gray-300 text-gray-800 px-4 py-2 rounded-lg hover:bg-gray-400 w-full sm:w-auto"
@@ -249,7 +254,7 @@ export default function CustomerManager({ data, setData }) {
                 </th>
 
                 <th className="px-4 py-3 text-left font-medium text-gray-500 uppercase tracking-wider">
-                  Email
+                  Địa chỉ
                 </th>
 
                 <th className="px-4 py-3 text-center font-medium text-gray-500 uppercase tracking-wider">
@@ -309,7 +314,7 @@ export default function CustomerManager({ data, setData }) {
                 <span className="text-xs font-semibold text-gray-500">
                   Email:
                 </span>
-                <p className="text-sm">{customer.email}</p>
+                <p className="text-sm">{customer.vAddress}</p>
               </div>
 
               <div className="flex justify-end">

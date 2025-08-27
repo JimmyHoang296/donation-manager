@@ -8,7 +8,7 @@ import LoadingModal from "../../components/LoadingModal";
 export default function ProjectManager({ data, setData }) {
   const [projects, setProjects] = useState(data.projects || []);
   const [searchQuery, setSearchQuery] = useState({
-    client: "",
+    customerName: "",
     type: "",
   });
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -28,12 +28,14 @@ export default function ProjectManager({ data, setData }) {
     setFilteredProjects(
       projects.filter(
         (b) =>
-          (!searchQuery.client ||
-            b.client
+          (!searchQuery.customerName ||
+            b.customerName
               .toLowerCase()
-              .includes(searchQuery.client.toLowerCase())) &&
+              .includes(searchQuery.customerName.toLowerCase())) &&
           (!searchQuery.type ||
-            b.type.toLowerCase().includes(searchQuery.type.toLowerCase()))
+            b.type.toLowerCase().includes(searchQuery.type.toLowerCase()))&&
+          (!searchQuery.status ||
+            b.status.toLowerCase().includes(searchQuery.status.toLowerCase()))
       )
     );
   }, [searchQuery, projects]);
@@ -137,19 +139,19 @@ export default function ProjectManager({ data, setData }) {
   return (
     <div className="p-6 bg-white rounded-xl shadow-md">
       <div className="mb-6 border-b pb-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-        <h2 className="text-2xl font-bold text-gray-800">Quản lý Project</h2>
+        <h2 className="text-2xl font-bold text-gray-800">Quản lý dự án</h2>
         <button
           onClick={handleAddNewProject}
           className="bg-indigo-500 text-white px-4 py-2 rounded-lg hover:bg-indigo-600 transition-colors flex items-center"
         >
-          <Plus className="mr-2" /> Thêm project
+          <Plus className="mr-2" /> Tạo dự án mới
         </button>
       </div>
 
       {/* Search */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4">
         <div>
-          <label className="block text-gray-700 text-sm mb-1">Client</label>
+          <label className="block text-gray-700 text-sm mb-1">Khách hàng</label>
           <input
             type="text"
             name="client"
@@ -159,15 +161,52 @@ export default function ProjectManager({ data, setData }) {
           />
         </div>
         <div>
-          <label className="block text-gray-700 text-sm mb-1">Type</label>
-          <input
-            type="text"
+          <label className="block text-gray-700 text-sm mb-1">Loại dự án</label>
+          <select
             name="type"
             value={searchQuery.type}
             onChange={handleSearchChange}
             className="w-full p-2 border rounded-md"
-            placeholder="higg / slcp"
-          />
+          >
+            <option value=""></option>
+            {[
+              "vFEM",
+              "vSLCP",
+              "vZIV",
+              "vSTZ",
+              "vFDM",
+              "vCOC",
+              "t-FEM",
+              "t-ZDHC",
+              "t-CleanChain",
+              "t-STZ",
+              "Other",
+            ].map((v, i) => (
+              <option key={i} value={v}>
+                {v}
+              </option>
+            ))}
+          </select>
+        </div>
+        <div>
+          <label className="block text-gray-700 text-sm mb-1">Trạng thái</label>
+          <select
+            name="status"
+            value={searchQuery.status}
+            onChange={handleSearchChange}
+            className="w-full p-2 border rounded-md"
+          >
+            <option value=""></option>
+            {[
+              "Quoting",
+              "Ongoing",
+              "Done"
+            ].map((v, i) => (
+              <option key={i} value={v}>
+                {v}
+              </option>
+            ))}
+          </select>
         </div>
       </div>
 
@@ -176,8 +215,9 @@ export default function ProjectManager({ data, setData }) {
         <table className="min-w-full divide-y divide-gray-200 text-sm">
           <thead className="bg-gray-50">
             <tr>
-              <th className="px-4 py-3 text-left">Client</th>
-              <th className="px-4 py-3 text-left">Type</th>
+              <th className="px-4 py-3 text-left">Khách hàng</th>
+              <th className="px-4 py-3 text-left">Loại dự án</th>
+              <th className="px-4 py-3 text-left">Trạng thái</th>
               <th className="px-4 py-3 text-left">Deadline</th>
               <th className="px-4 py-3 text-center">Hành động</th>
             </tr>
@@ -187,6 +227,7 @@ export default function ProjectManager({ data, setData }) {
               <tr key={b.id}>
                 <td className="px-4 py-3 max-w-50">{b.customerName}</td>
                 <td className="px-4 py-3">{b.type}</td>
+                <td className="px-4 py-3">{b.status}</td>
                 <td className="px-4 py-3">{b.deadline}</td>
                 <td className="px-4 py-3 text-center">
                   <button

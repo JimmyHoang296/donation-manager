@@ -14,8 +14,8 @@ const CustomerDetailModal = ({
       id: "",
       customerTaxCode: "", // Mã KH
       customerName: "", // Tên KH
-      slcpId:"",
-      worldlyId:"",
+      slcpId: "",
+      worldlyId: "",
       email: "", // Địa chỉ email
       eName: "", // Tên tiếng anh
       vName: "", // Tên tiếng việt
@@ -49,9 +49,9 @@ const CustomerDetailModal = ({
     }
     if (isNewCustomer) {
       if (
-        data.customers.map((c) => c.customerTaxCode).includes(
-          formData.customerTaxCode
-        )
+        data.customers
+          .map((c) => c.customerTaxCode)
+          .includes(formData.customerTaxCode)
       ) {
         alert("Mã số thuế của KH đã tồn tại. Hãy kiểm tra lại");
         return;
@@ -99,6 +99,16 @@ const CustomerDetailModal = ({
             />
           </div>
           <div className="col-span-1">
+            <label className="block text-gray-700 text-sm mb-1">Tên KH</label>
+            <input
+              type="text"
+              name="customerName"
+              value={formData.customerName}
+              onChange={handleInputChange}
+              className="w-full p-2 border rounded-md"
+            />
+          </div>
+          <div className="col-span-1">
             <label className="block text-gray-700 text-sm mb-1">
               Worldly ID
             </label>
@@ -111,9 +121,7 @@ const CustomerDetailModal = ({
             />
           </div>
           <div className="col-span-1">
-            <label className="block text-gray-700 text-sm mb-1">
-              slcpId
-            </label>
+            <label className="block text-gray-700 text-sm mb-1">slcpId</label>
             <input
               type="text"
               name="slcpId"
@@ -122,16 +130,7 @@ const CustomerDetailModal = ({
               className="w-full p-2 border rounded-md"
             />
           </div>
-          <div className="col-span-1">
-            <label className="block text-gray-700 text-sm mb-1">Tên KH</label>
-            <input
-              type="text"
-              name="customerName"
-              value={formData.customerName}
-              onChange={handleInputChange}
-              className="w-full p-2 border rounded-md"
-            />
-          </div>
+
           <div className="col-span-1">
             <label className="block text-gray-700 text-sm mb-1">
               Tên tiếng Việt

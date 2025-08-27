@@ -1,12 +1,9 @@
 import { useState } from "react";
 import Dashboard from "./pages/main/Main";
-import TaskManager from "./pages/taskManager/TaskManager";
 import Calendar from "./pages/calendar/Calendar";
-import SearchStore from "./pages/searchStore/SearchStore";
 import Sidebar from "./components/Sidebar";
 import Header from "./components/Header";
 import { mockdata } from "./assets/mockData";
-import ViolationManager from "./pages/violation/ViolationManager";
 import Login from "./pages/login/Login";
 import CustomerManager from "./pages/customerManager/CustomerManager";
 import ProjectManager from "./pages/projectManager/ProjectManager";
