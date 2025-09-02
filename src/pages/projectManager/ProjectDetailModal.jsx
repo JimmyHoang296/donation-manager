@@ -1,5 +1,5 @@
 import React, { use, useState } from "react";
-import { Eye, Plus, Save, Trash, Trash2 } from "lucide-react";
+import { Eye, File, Plus, Save, Trash, Trash2 } from "lucide-react";
 import Select from "react-select";
 import ServiceDetailModal from "../servicesManager/ServiceDetailModal";
 import { URL } from "../../assets/variables";
@@ -218,13 +218,28 @@ export default function ProjectDetailModal({
             >
               <Save className="mr-2" /> Save
             </button>
+
             {!isNew && (
-              <button
-                onClick={() => onDelete(formData.id)}
-                className="bg-red-500 text-white px-4 py-2 rounded-lg flex items-center"
-              >
-                <Trash className="mr-2" /> Delete
-              </button>
+              <>
+                <button
+                  onClick={handleSave}
+                  className="bg-indigo-500 text-white px-4 py-2 rounded-lg flex items-center"
+                >
+                  <File className="mr-2" /> Tạo Booking
+                </button>
+                <button
+                  onClick={() => onDelete(formData.id)}
+                  className="bg-red-500 text-white px-4 py-2 rounded-lg flex items-center"
+                >
+                  <Trash className="mr-2" /> Hủy dự án
+                </button>
+                <button
+                  onClick={() => onDelete(formData.id)}
+                  className="bg-green-500 text-white px-4 py-2 rounded-lg flex items-center"
+                >
+                  <File className="mr-2" /> Hoàn tất
+                </button>
+              </>
             )}
           </div>
           <button onClick={onClose} className="text-2xl">
@@ -560,12 +575,20 @@ export default function ProjectDetailModal({
             <h2 className="text-xl font-bold text-gray-800">
               Danh sách công việc trong dự án
             </h2>
-            <button
-              onClick={handleAddService}
-              className="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 flex items-center"
-            >
-              <Plus className="mr-2" /> Thêm công việc
-            </button>
+            <div className="flex gap-2">
+              <button
+                onClick={handleAddService}
+                className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 flex items-center"
+              >
+                <File className="mr-2" /> Tạo quoting
+              </button>
+              <button
+                onClick={handleAddService}
+                className="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 flex items-center"
+              >
+                <Plus className="mr-2" /> Thêm công việc
+              </button>
+            </div>
           </div>
 
           <div className="overflow-x-auto">
