@@ -1,11 +1,20 @@
 import React, { use, useState } from "react";
-import { Eye, File, Plus, Save, Trash, Trash2 } from "lucide-react";
+import {
+  ArrowBigDown,
+  ArrowBigUp,
+  Eye,
+  File,
+  Plus,
+  Save,
+  Search,
+  Trash,
+  Trash2,
+} from "lucide-react";
 import Select from "react-select";
 import ServiceDetailModal from "../servicesManager/ServiceDetailModal";
-import { URL } from "../../assets/variables";
+import { URL, customerInfors, emptyService } from "../../assets/variables";
 import LoadingModal from "../../components/LoadingModal";
-import { stringify } from "postcss";
-import { JsonRequestError } from "fullcalendar/index.js";
+import CustomerSearchModal from "./CustomerSearchModal";
 
 export default function ProjectDetailModal({
   data,
@@ -18,6 +27,8 @@ export default function ProjectDetailModal({
   const [isServiceModalOpen, setIsServiceModalOpen] = useState(false);
   const [selectedService, setSelectedService] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [fullInfor, setFullInfor] = useState(false);
+  const [isSearchCustomerModalOpen, setIsSearchCustomerModalOpen] = useState(false)
   const [formData, setFormData] = useState(
     project || {
       id: "",
@@ -43,37 +54,6 @@ export default function ProjectDetailModal({
     }
   );
 
-  const emptyService = {
-    id: null,
-    prjId: "",
-    name: "",
-    address: "",
-    manday: 0,
-    itemCost: 0,
-    travelFee: 0,
-    adminFee: 0,
-    vatRate: 0.08,
-    exchangeRate: 25600,
-    startDate: "",
-    endDate: "",
-    emp1: "",
-    emp2: "",
-    emp3: "",
-    // calculated fields
-    costUSD: 0,
-    costVND: 0,
-    VAT: 0,
-    total: 0,
-    allowance: 0,
-    overnight: 0,
-    reporting: 0,
-    nhatKhang: 0,
-    hotel: 0,
-    otherExpense: 0,
-    grabXanh: 0,
-    flightTicket: 0,
-  };
-
   const isNew = !project?.id;
 
   const handleInputChange = (e) => {
@@ -91,6 +71,8 @@ export default function ProjectDetailModal({
       onUpdate(formData);
     }
   };
+
+  const handleSearchCustomer = () => {};
   // ===== Service Handling =====
   const handleOpenService = (service) => {
     setSelectedService(service);
@@ -203,6 +185,15 @@ export default function ProjectDetailModal({
     (sum, s) => sum + (s.quantity || 0) * (s.price || 0),
     0
   );
+
+  // ======Handle search customer modal======
+  const handleCloseSearchCustomerModal =()=>{
+    setIsSearchCustomerModalOpen (false)
+  }
+
+  const handleSelectCustomer = () => {
+
+  }
   return (
     <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-xl shadow-lg p-6 w-full max-w-4xl max-h-[90vh] overflow-y-auto">
@@ -210,7 +201,7 @@ export default function ProjectDetailModal({
           {/* Action button */}
           <div className="flex items-center justify-start space-x-2">
             <h3 className="text-xl font-bold mr-12">
-              {isNew ? "Thêm Project" : "Chi tiết Project"}
+              {isNew ? "Thêm dự án" : "Thông tin dự án"}
             </h3>
             <button
               onClick={handleSave}
@@ -221,12 +212,12 @@ export default function ProjectDetailModal({
 
             {!isNew && (
               <>
-                <button
+                {/* <button
                   onClick={handleSave}
                   className="bg-indigo-500 text-white px-4 py-2 rounded-lg flex items-center"
                 >
                   <File className="mr-2" /> Tạo Booking
-                </button>
+                </button> */}
                 <button
                   onClick={() => onDelete(formData.id)}
                   className="bg-red-500 text-white px-4 py-2 rounded-lg flex items-center"
@@ -248,69 +239,47 @@ export default function ProjectDetailModal({
         </div>
 
         {/* Common fields */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4 border-b-1 pb-6">
+          <div className="flex items-center justify-start space-x-2 col-span-2">
+            <h3 className="text-xl font-bold mr-12">Thông tin KH</h3>
+            <button
+              onClick={()=> setIsSearchCustomerModalOpen(true)}
+              className="bg-indigo-500 text-white px-4 py-2 rounded-lg flex items-center"
+            >
+              <Search className="mr-2" /> Tìm KH
+            </button>
+            <button
+              onClick={() => setFullInfor(!fullInfor)}
+              className="bg-indigo-500 text-white px-4 py-2 rounded-lg"
+            >
+              {fullInfor ? (
+                <p className="flex">
+                  <ArrowBigUp className="mr-2" /> Ẩn thông tin
+                </p>
+              ) : (
+                <p className="flex">
+                  <ArrowBigDown className="mr-2" /> Hiện thông tin
+                </p>
+              )}
+            </button>
+          </div>
+          {customerInfors.map((c, id) => (
+            <div key={id} className={c.className(fullInfor)}>
+              <label className="block text-sm font-medium">{c.label}</label>
+              <input
+                type={c.type}
+                name={c.name}
+                value={formData[c.name]}
+                onChange={handleInputChange}
+                className="w-full p-2 border rounded-md"
+              />
+            </div>
+          ))}
+        </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-          {/* Customer Name */}
-          <div>
-            <label className="block text-sm font-medium">Tên khách hàng</label>
-            <Select
-              name="customerName"
-              value={
-                formData.customerName
-                  ? {
-                      value: formData.customerName,
-                      label: formData.customerName,
-                    }
-                  : null
-              }
-              onChange={(selected) => {
-                const customer = data.customers.find(
-                  (c) => c.customerName === selected.value
-                );
-                setFormData({
-                  ...formData,
-                  customerName: customer.customerName,
-                  customerTaxCode: customer.customerTaxCode,
-                  customerId: customer.id,
-                });
-              }}
-              options={data.customers.map((c) => ({
-                value: c.customerName,
-                label: c.customerName,
-              }))}
-            />
+          <div className="flex items-center justify-start space-x-2 col-span-2">
+            <h3 className="text-xl font-bold mr-12">Thông tin dự án</h3>
           </div>
-
-          {/* Customer Tax Code */}
-          <div>
-            <label className="block text-sm font-medium">Mã số thuế KH</label>
-            <Select
-              name="customerTaxCode"
-              value={
-                formData.customerTaxCode
-                  ? {
-                      value: formData.customerTaxCode,
-                      label: formData.customerTaxCode,
-                    }
-                  : null
-              }
-              onChange={(selected) => {
-                const customer = data.customers.find(
-                  (c) => c.customerTaxCode === selected.value
-                );
-                setFormData({
-                  ...formData,
-                  customerName: customer.customerName,
-                  customerTaxCode: customer.customerTaxCode,
-                  customerId: customer.id,
-                });
-              }}
-              options={data.customers.map((c) => ({
-                value: c.customerTaxCode,
-                label: c.customerTaxCode,
-              }))}
-            />
-          </div>
-
           <div>
             <label className="block text-sm font-medium">Client request</label>
             <input
@@ -362,50 +331,7 @@ export default function ProjectDetailModal({
             />
           </div>
         </div>
-        {/* Rep Info */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 border-t pt-4 mb-4">
-          <h4 className="col-span-2 font-bold">Representative</h4>
-          <input
-            placeholder="Name"
-            type="text"
-            name="repName"
-            value={formData.repName}
-            onChange={handleInputChange}
-            className="w-full p-2 border rounded-md"
-          />
-          <input
-            placeholder="Title"
-            type="text"
-            name="repTitle"
-            value={formData.repTitle}
-            onChange={handleInputChange}
-            className="w-full p-2 border rounded-md"
-          />
-          <input
-            placeholder="Email"
-            type="email"
-            name="repMail"
-            value={formData.repMail}
-            onChange={handleInputChange}
-            className="w-full p-2 border rounded-md"
-          />
-          <input
-            placeholder="Phone"
-            type="tel"
-            name="repPhone"
-            value={formData.repPhone}
-            onChange={handleInputChange}
-            className="w-full p-2 border rounded-md"
-          />
-          <input
-            placeholder="Expected Time"
-            type="date"
-            name="expectedTime"
-            value={formData.expectedTime}
-            onChange={handleInputChange}
-            className="w-full p-2 border rounded-md"
-          />
-        </div>
+
         {/* Conditional fields */}
         {formData.type === "vSLCP" && (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6 border-t pt-4">
@@ -650,6 +576,13 @@ export default function ProjectDetailModal({
             onSave={handleSaveNewService}
             onUpdate={handleUpdateService}
             onDelete={handleDeleteService}
+          />
+        )}
+        {isSearchCustomerModalOpen && (
+          <CustomerSearchModal
+            customers={data.customers}
+            onClose={handleCloseSearchCustomerModal}
+            onSelect={handleSelectCustomer}
           />
         )}
       </div>

@@ -1,1 +1,145 @@
-export const URL = 'https://script.google.com/macros/s/AKfycbytWBOOo56Ui-Ri8HMBK0CfFGy5OsjtnnY7_bOmgX5Z-QKg2pyOeulgIvb3C57pNUwBvw/exec'
+export const URL =
+  "https://script.google.com/macros/s/AKfycbytWBOOo56Ui-Ri8HMBK0CfFGy5OsjtnnY7_bOmgX5Z-QKg2pyOeulgIvb3C57pNUwBvw/exec";
+
+export const customerInfors = [
+  {
+    name: "customerName",
+    label: "Tên KH",
+    type: "text",
+    className: (v)=> v?"col-span-1":"col-span-1",
+  },
+  {
+    name: "customerTaxCode",
+    label: "Mã số thuế KH",
+    type: "text",
+    className: (v)=> v?"col-span-1":"col-span-1",
+  },
+  {
+    name: "vName",
+    label: "Tên tiếng Việt",
+    type: "text",
+    className: (v)=> v?"col-span-1":"col-span-1 hidden",
+  },
+  {
+    name: "eName",
+    label: "Tên tiếng Anh",
+    type: "text",
+    className: (v)=> v?"col-span-1":"col-span-1 hidden",
+  },
+  {
+    name: "vAddress",
+    label: "Địa chỉ tiếng Việt",
+    type: "text",
+    className: (v)=> v?"col-span-1":"col-span-1 hidden",
+  },
+  {
+    name: "eAddress",
+    label: "Địa chỉ tiếng Anh",
+    type: "text",
+    className: (v)=> v?"col-span-1":"col-span-1 hidden",
+  },
+  {
+    name: "worldlyId",
+    label: "Worldly ID",
+    type: "text",
+    className: (v)=> v?"col-span-1":"col-span-1 hidden",
+  },
+  {
+    name: "slcpId",
+    label: "slcpId",
+    type: "text",
+    className: (v)=> v?"col-span-1":"col-span-1 hidden",
+  },
+  {
+    name: "representative",
+    label: "Đại diện pháp luật",
+    type: "text",
+    className: (v)=> v?"col-span-1":"col-span-1 hidden",
+  },
+
+  {
+    name: "customerRepTitle",
+    label: "Chức vụ đại diện pháp luật",
+    type: "text",
+    className: (v)=> v?"col-span-1":"col-span-1 hidden",
+  },
+  {
+    name: "industry",
+    label: "Ngành sản xuất",
+    type: "text",
+    className: (v)=> v?"col-span-1":"col-span-1 hidden",
+  },
+  {
+    name: "numberOfEmployees",
+    label: "Số nhân viên",
+    type: "number",
+    className: (v)=> v?"col-span-1":"col-span-1 hidden",
+  },
+  {
+    name: "workshopArea",
+    label: "Diện tích nhà xưởng",
+    type: "number",
+    className: (v)=> v?"col-span-1":"col-span-1 hidden",
+  },
+  {
+    name: "customerContactPoint",
+    label: "Đầu mối liên hệ",
+    type: "text",
+    className: (v)=> v?"col-span-1":"col-span-1 hidden",
+  },
+  {
+    name: "contactPointTitle",
+    label: "Chức vụ đầu mối liên hệ",
+    type: "text",
+    className: (v)=> v?"col-span-1":"col-span-1 hidden",
+  },
+  {
+    name: "contactPointPhoneNumber",
+    label: "SDT đầu mối",
+    type: "tel",
+    className: (v)=> v?"col-span-1":"col-span-1 hidden",
+  },
+  {
+    name: "contactPointEmail",
+    label: "Email đầu mối",
+    type: "email",
+    className: (v)=> v?"col-span-1":"col-span-1 hidden",
+  },
+  {
+    name: "invoiceEmail",
+    label: "Email hóa đơn",
+    type: "email",
+    className: (v)=> v?"col-span-1":"col-span-1 hidden",
+  },
+];
+
+export const emptyService = {
+  id: null,
+  prjId: "",
+  name: "",
+  address: "",
+  manday: 0,
+  itemCost: 0,
+  travelFee: 0,
+  adminFee: 0,
+  vatRate: 0.08,
+  exchangeRate: 25600,
+  startDate: "",
+  endDate: "",
+  emp1: "",
+  emp2: "",
+  emp3: "",
+  // calculated fields
+  costUSD: 0,
+  costVND: 0,
+  VAT: 0,
+  total: 0,
+  allowance: 0,
+  overnight: 0,
+  reporting: 0,
+  nhatKhang: 0,
+  hotel: 0,
+  otherExpense: 0,
+  grabXanh: 0,
+  flightTicket: 0,
+};
