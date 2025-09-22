@@ -59,7 +59,7 @@ export default function ServiceDetailModal({
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
       <div className="bg-white rounded-xl shadow-lg p-6 w-full max-w-3xl max-h-[90vh] overflow-y-auto">
         <h2 className="text-xl font-bold mb-4">
-          {formData.id ? "Edit Service" : "New Service"}
+          {formData.sId ? "Edit Service" : "New Service"}
         </h2>
 
         <form onSubmit={handleSubmit} className="space-y-6">
@@ -155,7 +155,7 @@ export default function ServiceDetailModal({
                 <input
                   type="text"
                   name={field}
-                  value={formData[field]}
+                  value={formData[field]?.toLocaleString()}
                   readOnly
                   className="w-full p-2 border rounded-md bg-gray-100"
                 />
@@ -191,7 +191,7 @@ export default function ServiceDetailModal({
 
           {/* Actions */}
           <div className="flex justify-end gap-2 mt-6">
-            {formData.id && (
+            {formData.sId && (
               <button
                 type="button"
                 onClick={() => onDelete(formData.id)}

@@ -56,6 +56,7 @@ export default function ProjectManager({ data, setData }) {
 
   async function handleUpdate(updatedProject) {
     const submitData = { type: "updateProject", data: updatedProject };
+    console.log (JSON.stringify(submitData))
     try {
       setLoading(true);
       const response = await fetch(URL, {
@@ -66,7 +67,7 @@ export default function ProjectManager({ data, setData }) {
       const result = await response.json();
       if (result.success) {
         setProjects(
-          projects.map((b) => (b.id === updatedProject.id ? updatedProject : b))
+          projects.map((b) => (b.pId === updatedProject.pId ? updatedProject : b))
         );
         handleCloseModal();
       }
@@ -89,7 +90,7 @@ export default function ProjectManager({ data, setData }) {
       });
       const result = await response.json();
       if (result.success) {
-        setProjects((prev) => prev.filter((b) => b.id !== projectId));
+        setProjects((prev) => prev.filter((b) => b.pId !== projectId));
         handleCloseModal();
       }
     } catch (err) {
@@ -106,6 +107,7 @@ export default function ProjectManager({ data, setData }) {
 
   async function handleSaveNewProject(Project) {
     const submitData = { type: "newProject", data: Project };
+    console.log(JSON.stringify(submitData))
     try {
       setLoading(true);
       const response = await fetch(URL, {
@@ -115,7 +117,7 @@ export default function ProjectManager({ data, setData }) {
       });
       const result = await response.json();
       if (result.success) {
-        Project.id = result.data;
+        Project.pId = result.data;
         setProjects([...projects, Project]);
         handleCloseModal();
       }
@@ -224,7 +226,7 @@ export default function ProjectManager({ data, setData }) {
           </thead>
           <tbody className="divide-y divide-gray-200 bg-white">
             {paginatedProjects.map((b) => (
-              <tr key={b.id}>
+              <tr key={b.pId}>
                 <td className="px-4 py-3 max-w-50">{b.customerName}</td>
                 <td className="px-4 py-3">{b.type}</td>
                 <td className="px-4 py-3">{b.status}</td>

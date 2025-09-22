@@ -8,7 +8,6 @@ import {
   Save,
   Search,
   Trash,
-  Trash2,
 } from "lucide-react";
 import Select from "react-select";
 import ServiceDetailModal from "../servicesManager/ServiceDetailModal";
@@ -28,7 +27,8 @@ export default function ProjectDetailModal({
   const [selectedService, setSelectedService] = useState(null);
   const [loading, setLoading] = useState(false);
   const [fullInfor, setFullInfor] = useState(false);
-  const [isSearchCustomerModalOpen, setIsSearchCustomerModalOpen] = useState(false)
+  const [isSearchCustomerModalOpen, setIsSearchCustomerModalOpen] =
+    useState(false);
   const [formData, setFormData] = useState(
     project || {
       id: "",
@@ -54,17 +54,26 @@ export default function ProjectDetailModal({
     }
   );
 
-  const isNew = !project?.id;
+  const isNew = !project?.pId;
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSave = () => {
+  function setProjectStatus(data) {
+    if (data.invoiceNo) {
+      setFormData((prev) => ({ ...prev, status: "Invoiced" }));
+    } else if (!!data.totalAmount) {
+      setFormData((prev) => ({ ...prev, status: "Quoting" }));
+    } else {
+      setFormData((prev) => ({ ...prev, status: "Booking" }));
+    }
+  }
+  const handleSaveProject = () => {
+    setProjectStatus(formData);
     if (!formData.customerTaxCode) return alert("Chọn khách hàng");
     if (!formData.type) return alert("Chọn loại dịch vụ");
-
     if (isNew) {
       onSave(formData);
     } else {
@@ -73,6 +82,7 @@ export default function ProjectDetailModal({
   };
 
   const handleSearchCustomer = () => {};
+
   // ===== Service Handling =====
   const handleOpenService = (service) => {
     setSelectedService(service);
@@ -91,8 +101,43 @@ export default function ProjectDetailModal({
     setFormData((prev) => ({ ...prev, services: updatedServices }));
   };
 
+  const handleCreateQuotation= async () => {
+    // validate project
+    if (!formData.pId){
+      alert ('Lưu dự án trước khi tạo quotation')
+      return
+    }
+    if (!formData.vName||!formData.vAddress||!formData.picName||!formData.picMail){
+      alert('Thông tin KH chưa đầy đủ')
+      return
+    }
+    if (!formData.services || !formData.services.length){
+      alert('Chưa có dịch vụ nào cho dự án')
+      return
+    }
+    
+    handleSaveProject ()
+    const submitData = { type: "createQuotation", data: formData.pId };
+    try {
+      setLoading(true);
+      const response = await fetch(URL, {
+        method: "POST",
+        headers: { "Content-Type": "text/plain;charset=utf-8" },
+        body: JSON.stringify(submitData),
+      });
+      const result = await response.json();
+      if (result.success) {
+        const downloadLink = result.data
+        window.open(downloadLink, "_blank");
+      }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  }
   const handleAddService = () => {
-    const newService = { ...emptyService, prjId: formData.id };
+    const newService = { ...emptyService, prjId: formData.pId };
     setSelectedService(newService);
     setIsServiceModalOpen(true);
   };
@@ -128,6 +173,10 @@ export default function ProjectDetailModal({
   };
 
   const handleSaveNewService = async (newService) => {
+    if (!formData.pId){
+      alert ('Lưu dự án trước khi tạo dịch vụ')
+      return
+    }
     const submitData = { type: "newService", data: newService };
     console.log(submitData);
     try {
@@ -187,13 +236,16 @@ export default function ProjectDetailModal({
   );
 
   // ======Handle search customer modal======
-  const handleCloseSearchCustomerModal =()=>{
-    setIsSearchCustomerModalOpen (false)
-  }
+  const handleCloseSearchCustomerModal = () => {
+    setIsSearchCustomerModalOpen(false);
+  };
 
-  const handleSelectCustomer = () => {
-
-  }
+  const handleSelectCustomer = (customer) => {
+    Object.entries(customer).forEach(([key, value]) => {
+      setFormData((prev) => ({ ...prev, [key]: value }));
+    });
+    setIsSearchCustomerModalOpen(false);
+  };
   return (
     <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-xl shadow-lg p-6 w-full max-w-4xl max-h-[90vh] overflow-y-auto">
@@ -204,7 +256,7 @@ export default function ProjectDetailModal({
               {isNew ? "Thêm dự án" : "Thông tin dự án"}
             </h3>
             <button
-              onClick={handleSave}
+              onClick={handleSaveProject}
               className="bg-indigo-500 text-white px-4 py-2 rounded-lg flex items-center"
             >
               <Save className="mr-2" /> Save
@@ -213,19 +265,19 @@ export default function ProjectDetailModal({
             {!isNew && (
               <>
                 {/* <button
-                  onClick={handleSave}
+                  onClick={handleSaveProject}
                   className="bg-indigo-500 text-white px-4 py-2 rounded-lg flex items-center"
                 >
                   <File className="mr-2" /> Tạo Booking
                 </button> */}
                 <button
-                  onClick={() => onDelete(formData.id)}
+                  onClick={() => onDelete(formData.pId)}
                   className="bg-red-500 text-white px-4 py-2 rounded-lg flex items-center"
                 >
                   <Trash className="mr-2" /> Hủy dự án
                 </button>
                 <button
-                  onClick={() => onDelete(formData.id)}
+                  onClick={() => onDelete(formData.pId)}
                   className="bg-green-500 text-white px-4 py-2 rounded-lg flex items-center"
                 >
                   <File className="mr-2" /> Hoàn tất
@@ -243,7 +295,7 @@ export default function ProjectDetailModal({
           <div className="flex items-center justify-start space-x-2 col-span-2">
             <h3 className="text-xl font-bold mr-12">Thông tin KH</h3>
             <button
-              onClick={()=> setIsSearchCustomerModalOpen(true)}
+              onClick={() => setIsSearchCustomerModalOpen(true)}
               className="bg-indigo-500 text-white px-4 py-2 rounded-lg flex items-center"
             >
               <Search className="mr-2" /> Tìm KH
@@ -503,7 +555,7 @@ export default function ProjectDetailModal({
             </h2>
             <div className="flex gap-2">
               <button
-                onClick={handleAddService}
+                onClick={handleCreateQuotation}
                 className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 flex items-center"
               >
                 <File className="mr-2" /> Tạo quoting

@@ -34,7 +34,7 @@ export function mapServices(data) {
   }));
 
   services.forEach((s) => {
-    const index = projects.findIndex((p) => p.id === s.prjId);
+    const index = projects.findIndex((p) => p.pId === s.pId);
     if (index !== -1) {
       projects[index].services.push(s);
     }

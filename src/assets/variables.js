@@ -1,5 +1,5 @@
 export const URL =
-  "https://script.google.com/macros/s/AKfycbytWBOOo56Ui-Ri8HMBK0CfFGy5OsjtnnY7_bOmgX5Z-QKg2pyOeulgIvb3C57pNUwBvw/exec";
+  "https://script.google.com/macros/s/AKfycbwjWyM65OBP3Q6a5eA9k_SUNTs3pxo7YWEz1Rj3lqY-ZKkX5dtnz4h6H4cYcT1Emcd7Vg/exec";
 
 export const customerInfors = [
   {
