@@ -1,8 +1,11 @@
 import {
+  BarChart,
   Calendar,
   ChevronLeft,
+  DollarSign,
   DownloadCloud,
   FormInput,
+  Heart,
   LayoutDashboard,
   ListTodo,
   Search,
@@ -24,7 +27,13 @@ const Sidebar = ({ user, isSidebarOpen, setIsSidebarOpen, setCurrentPage }) => {
     { name: "Lịch", icon: <Calendar />, page: "calendar" },
 
   ];
-  const navItems = user.role === "emp" ? navItemsUser : navItemsLeader;
+  const navItems = [
+    { name: "Dashboard", icon: <BarChart />, page: "dashboard" },
+    { name: "Donations", icon: <Heart />, page: "donation-manager" },
+    { name: "Payments", icon: <DollarSign />, page: "payment-manager" },
+  ]
+
+  // const navItems = user.role === "emp" ? navItemsUser : navItemsLeader;
   return (
     <div
       className={`fixed inset-y-0 left-0 bg-white shadow-lg p-4 transition-all duration-300 z-50 ${
@@ -33,7 +42,7 @@ const Sidebar = ({ user, isSidebarOpen, setIsSidebarOpen, setCurrentPage }) => {
     >
       <div className="flex items-center justify-between h-16 mb-6">
         {isSidebarOpen && (
-          <h1 className="text-xl font-bold text-green-800">LEADERSHIP & SUSTAINABILITY</h1>
+          <h1 className="text-xl font-bold text-green-800">WCCSA Donations</h1>
         )}
         <button
           onClick={() => setIsSidebarOpen(!isSidebarOpen)}

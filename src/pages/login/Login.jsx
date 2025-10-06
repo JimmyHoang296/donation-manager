@@ -10,14 +10,13 @@ const Login = ({ setIsLogin, setData }) => {
   const handleLogin = async (e) => {
     e.preventDefault();
     if (!email || !password) {
-      alert("Nhập thông tin");
+      alert("Input user name and password");
       return;
     }
     const submitData = {
       type: "login",
-      data: { username: email, password },
+      data: { userName: email, password },
     };
-
     try {
       setLoading(true);
       const response = await fetch(URL, {
@@ -34,7 +33,7 @@ const Login = ({ setIsLogin, setData }) => {
         setData(result.data);
         setIsLogin(true);
       } else {
-        alert("Thông tin đăng nhập sai");
+        alert("Wrong user name or password");
       }
     } catch (error) {
       console.error("Error sending request:", error);
@@ -48,20 +47,20 @@ const Login = ({ setIsLogin, setData }) => {
     <div className="min-h-screen flex items-center justify-center bg-gray-100">
       <div className="bg-white p-8 rounded-xl shadow-lg w-full max-w-sm">
         <h2 className="text-2xl font-bold mb-6 text-center text-red-800">
-          KSTT WCM
+          WCCSA Donations
         </h2>
         <form onSubmit={handleLogin} className="space-y-4">
           {/* Email */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Tài khoản
+              User name
             </label>
             <input
               type="text"
               className="w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-400"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="Enter your email"
+              placeholder="Input your user name"
             />
           </div>
 
@@ -75,7 +74,7 @@ const Login = ({ setIsLogin, setData }) => {
               className="w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-400"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              placeholder="Enter your password"
+              placeholder="Input your password"
             />
           </div>
 
