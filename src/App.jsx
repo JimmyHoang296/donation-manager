@@ -10,7 +10,7 @@ import Header from "./components/Header";
 const App = () => {
   const [currentPage, setCurrentPage] = useState("donation-manager");
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
-  const [isLogin, setIsLogin] = useState(true);
+  const [isLogin, setIsLogin] = useState(false);
   const [data, setData] = useState(mockdata);
 
   const renderContent = () => {

@@ -5,6 +5,7 @@ import DonationDetailModal from "./PaymentDetailModal";
 import Pagination from "../../components/Pagination";
 import LoadingModal from "../../components/LoadingModal";
 import { toDateInputValue } from "../../assets/helpers";
+import PaymentDetailModal from "./PaymentDetailModal";
 
 export default function PaymentManager({ data, setData }) {
   const [donations, setDonations] = useState(data.donations || []);
@@ -61,33 +62,18 @@ export default function PaymentManager({ data, setData }) {
     }
   }, [filteredPayments, currentPage]);
 
-  const handleOpenModal = (donation) => {
-    setSelectedDonation(donation);
-    setSelectedPayment(
-      payments.filter((v) => v.d_id.toString() === donation.id.toString())
-    );
-    setIsModalOpen(true);
-  };
-
   const handleCloseModal = () => {
     setIsModalOpen(false);
     setSelectedDonation(null);
     setSelectedPayment(null);
   };
 
-  async function handleUpdate(updatedDonation, action) {
-    if (action === "activate") {
-      updatedDonation = { ...updatedDonation, status: "active" };
-    } else if (action === "cancelled") {
-      updatedDonation = { ...updatedDonation, status: "cancelled" };
-      updatedDonation = updatedDonation.cancelledDate
-        ? updatedDonation
-        : { ...updatedDonation, cancelledDate: new Date() };
-    }
+  async function handleConfirmPayment(payment){
     const submitData = {
-      type: "updateDonation",
-      data: updatedDonation,
+      type: "confirmPayment",
+      data: payment,
     };
+    console.log(JSON.stringify(submitData))
     try {
       setLoading(true);
       const response = await fetch(URL, {
@@ -97,51 +83,27 @@ export default function PaymentManager({ data, setData }) {
       });
       const result = await response.json();
       if (result.success) {
-        setDonations(
-          donations.map((p) =>
-            p.id === updatedDonation.id ? updatedDonation : p
+        setPayments(
+          payments.map((p) =>
+            p.id === payment.id ? payment : p
           )
         );
-        setSelectedDonation(updatedDonation);
-        alert("Update donation successfully");
-        // handleCloseModal();
+        
+        alert("Confirm payment successfully");
+        handleCloseModal();
       }
     } catch (error) {
       console.error("Error sending request:", error);
     } finally {
       setLoading(false);
     }
-  }
-
-  async function handleOpenPaymentModal(){
-
   }
   
-  async function handleSaveNewDonation(newDonation) {
-    const submitData = { type: "newDonation", data: newDonation };
-    console.log(JSON.stringify(submitData));
-    try {
-      setLoading(true);
-      const response = await fetch(URL, {
-        method: "POST",
-        headers: { "Content-Type": "text/plain;charset=utf-8" },
-        body: JSON.stringify(submitData),
-      });
-      const result = await response.json();
-      if (result.success) {
-        newDonation.id = result.data.newId;
-        newDonation.status = "draft";
-        setDonations([...donations, newDonation]);
-        alert("Create donation successfully");
-        // handleCloseModal();
-      }
-    } catch (error) {
-      console.error("Error sending request:", error);
-    } finally {
-      setLoading(false);
-    }
+  async function handleOpenPaymentModal(payment){
+    setSelectedPayment (payment)
+    setIsModalOpen(true)
   }
-
+  
   const paginatedPayments = useMemo(() => {
   const startIndex = (currentPage - 1) * paymentsPerPage;
 
@@ -293,13 +255,10 @@ export default function PaymentManager({ data, setData }) {
       />
 
       {isModalOpen && (
-        <DonationDetailModal
-          user={data.user}
+        <PaymentDetailModal
           payment={selectedPayment}
-          donation={selectedDonation}
           onClose={handleCloseModal}
-          onSave={handleSaveNewDonation}
-          onUpdate={handleUpdate}
+          onSave={handleConfirmPayment}
         />
       )}
       {loading && <LoadingModal message="Loading..." />}

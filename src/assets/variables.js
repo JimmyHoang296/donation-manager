@@ -1,5 +1,5 @@
 export const URL =
-  "https://script.google.com/macros/s/AKfycbzjWp11a_3NHttuyAjGpQ-5l-Z7c52r9Lgv63WxJ0L4dm60JpAmVz392AWd2unoGGm_/exec";
+  "https://script.google.com/macros/s/AKfycbwvdVwKdj9tpTEi2DCmgAtFvXz3kCaPoCb_FXKNwsqnKoj7ZP6SycnUjFOIK91fIp0g/exec";
 
 export const paymentMethods = [
   { value: "a_ACH", name: "ACH (Autopay)" },
