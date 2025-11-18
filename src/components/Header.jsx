@@ -1,11 +1,15 @@
 import { ChevronLeft, UserCircle } from 'lucide-react';
+import { useApp } from '../Context';
+
 import React from 'react'
 // Header Component
-const Header = ({ user,isSidebarOpen,setIsSidebarOpen }) => {
+const Header = ({ isSidebarOpen,setIsSidebarOpen }) => {
+  const {data,setData} = useApp()
+  const user = data.user.name
   return (
     <header className="flex items-center justify-between h-16 bg-white shadow-md p-4">
       {!isSidebarOpen && (
-          <h1 className="text-xl font-bold text-green-800">LEADERSHIP & SUSTAINABILITY</h1>
+          <h1 className="text-xl font-bold text-green-800">KHỎE COUPON</h1>
         )}
       <div className="flex items-center">
         <button onClick={() => setIsSidebarOpen(prevState => !prevState)} className="p-2 rounded-full hover:bg-gray-200 lg:hidden">
