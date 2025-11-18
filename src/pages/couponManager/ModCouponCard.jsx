@@ -7,14 +7,14 @@ import LoadingModal from "../../components/LoadingModal";
 export default function ModCouponCard({ coupon, onClose }) {
   const [newName, setNewName] = useState(coupon.name);
   const [newPhone, setNewPhone] = useState(coupon.phone);
-  const [newExpDate, setNewExpDate] = useState(coupon.expDate);
+  const [newExpDate, setNewExpDate] = useState(toDateInputValue(coupon.expDate));
   const [newTotal, setNewTotal] = useState(coupon.total);
   const [note, setNote] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const { data, setData } = useApp();
 
   const handleInputDate = (e) => {
-    const {value,name} = e.target
+    const { value, name } = e.target;
 
     const selectedDate = new Date(value);
     const now = new Date();
@@ -24,6 +24,7 @@ export default function ModCouponCard({ coupon, onClose }) {
       alert("Ngày hết hạn không thể chọn trong quá khứ");
       return; // ❌ Prevent setting invalid date
     }
+    setNewExpDate(value);
   };
 
   const handleModCoupon = async () => {
@@ -96,7 +97,7 @@ export default function ModCouponCard({ coupon, onClose }) {
   return (
     <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
       <div className="bg-white rounded-xl shadow-lg w-full max-w-sm p-5 animate-fade-in">
-        <h2 className="text-lg font-semibold mb-4 text-center">
+        <h2 className="text-lg font-semibold mb-4 text-center border-r-amber-600">
           Sửa thông tin coupon {coupon.id}
         </h2>
         <div className="space-y-3">
@@ -112,30 +113,54 @@ export default function ModCouponCard({ coupon, onClose }) {
           </div>
           <div>
             <label className="block text-sm text-gray-600 mb-1">
-              Ngày sử dụng
+              Ngày hết hạn mới (Ngày hết hạn cũ: {toDateInputValue(coupon.expDate)})
             </label>
             <input
               type="date"
               className="w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
-              value={useDate}
-              onChange={(e) => setUseDate(e.target.value)}
+              value={newExpDate}
+              onChange={(e) => setNewExpDate(e.target.value)}
             />
           </div>
           <div>
             <label className="block text-sm text-gray-600 mb-1">
-              Số lượng sử dụng
+              Số phiếu mới (Số phiếu cũ: {coupon.total})
             </label>
             <input
               type="number"
               className="w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
-              value={useValue}
-              onChange={(e) => setUseValue(e.target.value)}
+              value={newTotal}
+              onChange={(e) => setNewTotal(e.target.value)}
+              placeholder="Nhập số phiếu"
+            />
+          </div>
+          <div>
+            <label className="block text-sm text-gray-600 mb-1">
+              Tên khách hàng mới (Tên cũ: {coupon.name})
+            </label>
+            <input
+              type="text"
+              className="w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
+              value={newName}
+              onChange={(e) => setNewName(e.target.value)}
+              placeholder="Nhập số phiếu"
+            />
+          </div>
+          <div>
+            <label className="block text-sm text-gray-600 mb-1">
+              Số điện thoại mới (Số cũ: {coupon.phone})
+            </label>
+            <input
+              type="text"
+              className="w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
+              value={newPhone}
+              onChange={(e) => setNewPhone(e.target.value)}
               placeholder="Nhập số phiếu"
             />
           </div>
 
           <div>
-            <label className="block text-sm text-gray-600 mb-1">Ghi chú</label>
+            <label className="block text-sm text-gray-600 mb-1">Ghi chú nguyên nhân sửa</label>
             <textarea
               className="w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
               value={note}
@@ -156,7 +181,7 @@ export default function ModCouponCard({ coupon, onClose }) {
             onClick={() => handleModCoupon()}
             className="px-4 py-2 rounded-lg bg-blue-500 text-white hover:bg-blue-600"
           >
-            Confirm
+            Xác nhận
           </button>
         </div>
       </div>
